@@ -1,0 +1,50 @@
+name: "CI"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    permissions:
+      contents: read
+      pull-requests: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install poetry
+        run: |
+          python -m pip install poetry
+
+      - name: Install dependencies
+        run: |
+          just install
+
+      - name: Check Format
+        run: |
+          just format
+
+      - name: Run tests
+        run: |
+          just test
+
+      - name: Lint code
+        run: |
+          just lint
+
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
