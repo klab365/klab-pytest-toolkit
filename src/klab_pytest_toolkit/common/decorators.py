@@ -1,24 +1,23 @@
 import functools
 import inspect
+from typing import Awaitable, Callable
 import pytest
 
 
 def requirement(req_id):
     """Custom decorator to mark a test with a requirement ID and log it in the JUnit report."""
-    def decorator(func):
-        REQUIREMENT_LABEL = "requirement"
-
-        @pytest.mark.requirement(req_id)
+    def decorator(func: Callable) -> Callable[[], Awaitable[None]]:
         @functools.wraps(func)
-        async def async_wrapper(*args, request, **kwargs):
-            request.node.user_properties.append((REQUIREMENT_LABEL, req_id))
-            return await func(*args, request=request, **kwargs)
-
-        @pytest.mark.requirement(req_id)
+        async def async_wrapper(*args, **kwargs):
+            if hasattr(pytest, 'mark'):
+                pytest.mark.requirement(req_id)(func)
+            return await func(*args, **kwargs)
+        
         @functools.wraps(func)
-        def sync_wrapper(*args, request, **kwargs):
-            request.node.user_properties.append((REQUIREMENT_LABEL, req_id))
-            return func(*args, request=request, **kwargs)
-
+        def sync_wrapper(*args, **kwargs):
+            if hasattr(pytest, 'mark'):
+                pytest.mark.requirement(req_id)(func)
+            return func(*args, **kwargs)
+        
         return async_wrapper if inspect.iscoroutinefunction(func) else sync_wrapper
     return decorator

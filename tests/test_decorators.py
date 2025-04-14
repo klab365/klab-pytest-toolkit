@@ -3,10 +3,9 @@ import pytest
 
 from klab_pytest_toolkit.common.decorators import requirement
 
-# Unit tests for the requirement decorator
 def test_requirement_decorator_sync():
     @requirement(456)
-    def sync_test_func(request):
+    def sync_test_func():
         pass
     
     with patch('pytest.mark.requirement') as mock_requirement:
@@ -18,7 +17,7 @@ def test_requirement_decorator_sync():
 def test_requirement_decorator_async():
     @pytest.mark.asyncio
     @requirement(789)
-    async def async_test_func(request):
+    async def async_test_func():
         pass
     
     with patch('pytest.mark.requirement') as mock_requirement:
