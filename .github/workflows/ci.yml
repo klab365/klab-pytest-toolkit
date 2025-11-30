@@ -17,34 +17,23 @@ jobs:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
+        
+      - uses: extractions/setup-just@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-
-      - name: Install poetry
-        run: |
-          python -m pip install poetry
-
-      - name: Install dependencies
-        run: |
-          just install
+      - name: Build CI Docker
+        run: just build-ci-docker $(id -u)
 
       - name: Check Format
-        run: |
-          just format
+        run: just format
 
       - name: Run tests
-        run: |
-          just test
+        run: just test
 
       - name: Lint code
-        run: |
-          just lint
+        run: just lint
 
       - name: Pytest coverage comment
         uses: MishaKav/pytest-coverage-comment@main
         with:
-          pytest-coverage-path: ./pytest-coverage.txt
+          pytest-xml-coverage-path: ./coverage.xml
           junitxml-path: ./pytest.xml

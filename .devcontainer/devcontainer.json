@@ -1,0 +1,30 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+    "name": "klab-pytest devcontainer",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "context": "..",
+        "target": "development",
+        "args": {
+            "UID": "1000"
+        }
+    },
+    "remoteUser": "dev",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "mhutchie.git-graph",
+                "eamodio.gitlens",
+                "njpwerner.autodocstring",
+                "tamasfe.even-better-toml",
+                "asciidoctor.asciidoctor-vscode",
+                "sclu1034.justfile",
+                "tamasfe.even-better-toml",
+                "charliermarsh.ruff"
+            ]
+        }
+    },
+    
+    "postCreateCommand": "echo 'Dev container ready for Python (uv) development!'"
+}

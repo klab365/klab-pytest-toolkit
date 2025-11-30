@@ -1,33 +1,29 @@
-# Run `poetry install`
-install:
-    poetry install
+CMD_ENV := if path_exists('/.dockerenv') == "false" { 'docker run --rm --user $(id -u):$(id -g) -v $(pwd):/workspaces/klab-pytest-toolkit -w /workspaces/klab-pytest-toolkit klab-pytest-toolkit-build' } else { '' }
 
-# run poetry to show deps
-showdeps: install
-    echo "CURRENT:"
-    poetry show --tree
-    echo
-    echo "LATEST:"
-    poetry show --latest
+# Build ci docker
+build-ci-docker user-id='1000':
+    docker build -t klab-pytest-toolkit-build --target ci --file Dockerfile --build-arg UID={{user-id}} .
 
 # Runs linting for python code
 lint:
-    poetry run mypy .
+    {{ CMD_ENV }} uv run ty check .
+    {{ CMD_ENV }} uv run ruff check .
 
 # Formats you code with Black, and sorts imports with isort
 format:
-    poetry run black .
-    poetry run isort .
+    {{ CMD_ENV }} uv run ruff format .
+    {{ CMD_ENV }} uv run ruff check --fix .
 
 # Checks if the code is formatted correctly
 check-format:
-    poetry run black --check .
-    poetry run isort --check .
+    {{ CMD_ENV }} uv run ruff check .
+    {{ CMD_ENV }} uv run ruff format --check .
 
 # run pytest with coverage
 test:
-    poetry run pytest \
+    {{ CMD_ENV }} uv run pytest \
         --junitxml=pytest.xml \
         --cov-report=term-missing:skip-covered \
-        --cov=klab_pytest_toolkit \
+        --cov-report=xml:coverage.xml \
+        --cov=src \
         tests
