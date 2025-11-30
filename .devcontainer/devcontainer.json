@@ -10,6 +10,18 @@
             "UID": "1000"
         }
     },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "version": "latest",
+            "moby": false
+        }
+    },
+    "runArgs": [
+        "--net", "host"
+    ],
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
     "remoteUser": "dev",
     "customizations": {
         "vscode": {

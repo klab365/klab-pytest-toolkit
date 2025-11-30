@@ -7,7 +7,7 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 RUN <<EOF
     apt-get update
     apt-get install -y --no-install-recommends \
-        curl
+        curl sudo
 
     # install just
     curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
@@ -15,9 +15,15 @@ RUN <<EOF
     # add user dev with specified UID
     useradd -m -u ${UID} dev
 
+    # add dev user to sudoers
+    echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
     apt-get clean
     rm -rf /var/lib/apt/lists/*
 EOF
+
+# Copy docker CLI
+COPY --from=docker:cli /usr/local/bin/docker /usr/local/bin/docker
 
 
 FROM ci AS development
@@ -35,9 +41,6 @@ RUN <<EOF
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
     locale-gen en_US.UTF-8
     update-locale LANG=en_US.UTF-8
-
-    # add dev user to sudoers
-    echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
     # Setup shell for dev user
     chsh -s /bin/zsh dev
