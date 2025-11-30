@@ -4,6 +4,10 @@ CMD_ENV := if path_exists('/.dockerenv') == "false" { 'docker run --rm --user $(
 build-ci-docker user-id='1000':
     docker build -t klab-pytest-toolkit-build --target ci --file Dockerfile --build-arg UID={{user-id}} .
 
+# Clean project
+clean:
+    git clean -fdX .
+
 # Runs linting for python code
 lint:
     {{ CMD_ENV }} uv run ty check .
@@ -25,5 +29,5 @@ test:
         --junitxml=pytest.xml \
         --cov-report=term-missing:skip-covered \
         --cov-report=xml:coverage.xml \
-        --cov=src \
-        tests
+        --cov=packages \
+        packages
