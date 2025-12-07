@@ -1,5 +1,3 @@
-"""Tests for JSON response validator fixtures."""
-
 import pytest
 from klab_pytest_toolkit_webfixtures import JsonResponseValidatorFactory
 

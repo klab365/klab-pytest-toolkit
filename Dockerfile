@@ -6,17 +6,19 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 RUN <<EOF
     apt-get update
-    apt-get install -y --no-install-recommends \
-        curl sudo
-
-    # install just
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+    apt-get install -y --no-install-recommends sudo
 
     # add user dev with specified UID
     useradd -m -u ${UID} dev
 
     # add dev user to sudoers
     echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+    # Install tkinter for python
+    apt install -y python3-tk
+
+    # Install headless UI Tests dependencies
+    apt-get install -y --no-install-recommends xvfb xdotool x11-utils xauth
 
     apt-get clean
     rm -rf /var/lib/apt/lists/*
@@ -32,8 +34,10 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 RUN <<EOF
     apt-get update
-    apt-get install -y --no-install-recommends \
-        git sudo zsh locales ssh
+    apt-get install -y --no-install-recommends git zsh locales ssh curl
+
+    # install just
+    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
     # Ensure locale is set to UTF-8
     apt update
