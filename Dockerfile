@@ -4,6 +4,8 @@ ARG UID=1000
 
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
 RUN <<EOF
     apt-get update
     apt-get install -y --no-install-recommends sudo
@@ -19,6 +21,11 @@ RUN <<EOF
 
     # Install headless UI Tests dependencies
     apt-get install -y --no-install-recommends xvfb xdotool x11-utils xauth
+
+    mkdir /ms-playwright
+    uv tool install playwright
+    playwright install --with-deps chromium
+    chmod -R 777 /ms-playwright
 
     apt-get clean
     rm -rf /var/lib/apt/lists/*

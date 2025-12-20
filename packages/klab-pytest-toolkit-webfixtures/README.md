@@ -12,6 +12,7 @@ pip install klab-pytest-toolkit-webfixtures
 
 - 🔍 **JSON Schema Validation** - Validate API responses against JSON schemas (powered by [jsonschema](https://python-jsonschema.readthedocs.io/))
 - 🌐 **REST API Client** - Simple HTTP client for making API requests with session management
+- Playwright integration for end-to-end web testing
 
 ## How It Works
 
@@ -25,6 +26,10 @@ This toolkit uses the [jsonschema](https://python-jsonschema.readthedocs.io/) li
 - And all other [JSON Schema Draft 7](https://json-schema.org/draft-07/json-schema-release-notes.html) features
 
 ## Quick Start
+
+### Instalation
+
+* Playwright need some additional dependencies.
 
 ### REST API Client
 
