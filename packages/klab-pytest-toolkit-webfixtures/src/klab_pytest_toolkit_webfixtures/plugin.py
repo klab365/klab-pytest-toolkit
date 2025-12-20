@@ -1,8 +1,11 @@
 """Pytest plugin to register web fixtures."""
 
-from klab_pytest_toolkit_webfixtures.api_client import ApiClientFactory
 import pytest
-from klab_pytest_toolkit_webfixtures.validators import JsonResponseValidatorFactory
+from klab_pytest_toolkit_webfixtures import (
+    ApiClientFactory,
+    JsonResponseValidatorFactory,
+    WebClientFactory,
+)
 
 
 def pytest_configure(config):
@@ -46,3 +49,14 @@ def api_client_factory() -> ApiClientFactory:
         ApiClientFactory: Factory to create API client instances
     """
     return ApiClientFactory()
+
+
+@pytest.fixture
+def web_client_factory() -> WebClientFactory:
+    """
+    Fixture to provide a Web client factory for making web requests.
+
+    Returns:
+        WebClientFactory: Factory to create Web client instances
+    """
+    return WebClientFactory()
