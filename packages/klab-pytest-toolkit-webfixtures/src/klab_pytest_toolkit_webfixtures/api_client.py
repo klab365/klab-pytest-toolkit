@@ -2,7 +2,23 @@ import requests
 from typing import Dict, Any, Optional
 
 
-class RestApiClient:
+class ApiClient:
+    """Abstract base class for API clients."""
+
+    def close(self) -> None:
+        """Close any resources held by the client."""
+        raise NotImplementedError
+
+    def __enter__(self):
+        """Enter the runtime context related to this object."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit the runtime context related to this object."""
+        self.close()
+
+
+class RestApiClient(ApiClient):
     def __init__(
         self,
         base_url: str,
@@ -140,6 +156,10 @@ class RestApiClient:
             headers=self.headers,
             timeout=timeout,
         )
+
+    def close(self) -> None:
+        """Close the session."""
+        self.session.close()
 
 
 class ApiClientFactory:

@@ -3,7 +3,7 @@
 import pytest
 from klab_pytest_toolkit_webfixtures import (
     ApiClientFactory,
-    JsonResponseValidatorFactory,
+    ResponseValidatorFactory,
     WebClientFactory,
 )
 
@@ -19,16 +19,16 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture
-def json_response_validator_factory() -> JsonResponseValidatorFactory:
+def response_validator_factory() -> ResponseValidatorFactory:
     """
     Factory fixture to create multiple validators with different schemas.
 
     Useful when you need multiple validators in a single test.
 
     Example:
-        def test_multiple_schemas(json_validator_factory: JsonResponseValidatorFactory):
-            user_validator = json_validator_factory.create(user_schema)
-            post_validator = json_validator_factory.create(post_schema)
+        def test_multiple_schemas(response_validator_factory: JsonResponseValidatorFactory):
+            user_validator = response_validator_factory.create(user_schema)
+            post_validator = response_validator_factory.create(post_schema)
 
             assert user_validator.validate_response(user_data)
             assert post_validator.validate_response(post_data)
@@ -37,7 +37,7 @@ def json_response_validator_factory() -> JsonResponseValidatorFactory:
         JsonResponseValidatorFactory: Factory to create JsonResponseValidator instances
     """
 
-    return JsonResponseValidatorFactory()
+    return ResponseValidatorFactory()
 
 
 @pytest.fixture

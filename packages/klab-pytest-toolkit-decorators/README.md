@@ -2,6 +2,10 @@
 
 Custom pytest decorators for marking and annotating tests.
 
+At the moment the package provides the following decorator:
+
+- `@requirement(id: str)`: Marks a test with a requirement ID for traceability. The ID is added to the junit xml output.
+
 ## Installation
 
 ```bash

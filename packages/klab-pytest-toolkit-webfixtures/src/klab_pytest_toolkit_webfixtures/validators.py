@@ -63,10 +63,10 @@ class JsonResponseValidator:
         return self.last_error
 
 
-class JsonResponseValidatorFactory:
-    """Factory to create JsonResponseValidator instances with different configurations."""
+class ResponseValidatorFactory:
+    """Factory to create different Response Validators instances with different configurations."""
 
-    def create_validator(
+    def create_json_validator(
         self,
         schema: Optional[Dict[str, Any]] = None,
         raise_on_error: Optional[bool] = None,

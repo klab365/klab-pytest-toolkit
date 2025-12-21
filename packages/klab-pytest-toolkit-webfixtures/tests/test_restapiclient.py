@@ -1,7 +1,8 @@
-from klab_pytest_toolkit_webfixtures.api_client import ApiClientFactory
+from klab_pytest_toolkit_webfixtures.api_client import ApiClientFactory, RestApiClient
 import pytest
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.wait_strategies import HttpWaitStrategy
+from collections.abc import Generator
 
 
 @pytest.fixture(scope="session")
@@ -17,10 +18,17 @@ def httpbin_container():
         yield base_url
 
 
-def test_get_request(api_client_factory: ApiClientFactory, httpbin_container):
-    """Test basic GET request with query parameters."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
+@pytest.fixture()
+def rest_client(
+    api_client_factory: ApiClientFactory, httpbin_container
+) -> Generator[RestApiClient]:
+    """Fixture to provide a REST API client."""
+    with api_client_factory.create_rest_client(base_url=httpbin_container) as client:
+        yield client
 
+
+def test_get_request(rest_client: RestApiClient):
+    """Test basic GET request with query parameters."""
     response = rest_client.get("/get", params={"test": "value"})
 
     assert response.status_code == 200
@@ -28,10 +36,8 @@ def test_get_request(api_client_factory: ApiClientFactory, httpbin_container):
     assert json_data["args"]["test"] == "value"
 
 
-def test_get_request_with_multiple_params(api_client_factory: ApiClientFactory, httpbin_container):
+def test_get_request_with_multiple_params(rest_client: RestApiClient):
     """Test GET request with multiple query parameters."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.get(
         "/get", params={"key1": "value1", "key2": "value2", "key3": "value3"}
     )
@@ -43,10 +49,8 @@ def test_get_request_with_multiple_params(api_client_factory: ApiClientFactory, 
     assert json_data["args"]["key3"] == "value3"
 
 
-def test_get_request_without_params(api_client_factory: ApiClientFactory, httpbin_container):
+def test_get_request_without_params(rest_client: RestApiClient):
     """Test GET request without query parameters."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.get("/get")
 
     assert response.status_code == 200
@@ -54,10 +58,8 @@ def test_get_request_without_params(api_client_factory: ApiClientFactory, httpbi
     assert json_data["args"] == {}
 
 
-def test_post_request(api_client_factory: ApiClientFactory, httpbin_container):
+def test_post_request(rest_client: RestApiClient):
     """Test POST request with JSON payload."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     payload = {"name": "John Doe", "email": "john@example.com", "age": 30}
 
     response = rest_client.post("/post", payload=payload)
@@ -69,10 +71,8 @@ def test_post_request(api_client_factory: ApiClientFactory, httpbin_container):
     assert json_data["json"]["email"] == "john@example.com"
 
 
-def test_post_request_with_nested_data(api_client_factory: ApiClientFactory, httpbin_container):
+def test_post_request_with_nested_data(rest_client: RestApiClient):
     """Test POST request with nested JSON structure."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     payload = {
         "user": {"id": 1, "name": "John Doe", "profile": {"age": 30, "city": "NYC"}},
         "posts": [
@@ -90,10 +90,8 @@ def test_post_request_with_nested_data(api_client_factory: ApiClientFactory, htt
     assert len(json_data["json"]["posts"]) == 2
 
 
-def test_post_request_empty_payload(api_client_factory: ApiClientFactory, httpbin_container):
+def test_post_request_empty_payload(rest_client: RestApiClient):
     """Test POST request with empty payload."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.post("/post", payload={})
 
     assert response.status_code == 200
@@ -101,10 +99,8 @@ def test_post_request_empty_payload(api_client_factory: ApiClientFactory, httpbi
     assert json_data["json"] == {}
 
 
-def test_delete_request(api_client_factory: ApiClientFactory, httpbin_container):
+def test_delete_request(rest_client: RestApiClient):
     """Test DELETE request."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.delete("/delete")
 
     assert response.status_code == 200
@@ -143,10 +139,8 @@ def test_client_base_url_handling(api_client_factory: ApiClientFactory, httpbin_
     assert httpbin_container in json_data["url"]
 
 
-def test_session_persistence(api_client_factory: ApiClientFactory, httpbin_container):
+def test_session_persistence(rest_client: RestApiClient):
     """Test that session persists across requests."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     # First request sets a cookie
     response1 = rest_client.get("/cookies/set?session=test123")
     assert response1.status_code == 200
@@ -174,12 +168,8 @@ def test_multiple_clients_independent(api_client_factory: ApiClientFactory, http
     assert response2.json()["headers"]["X-Client"] == "client2"
 
 
-def test_get_with_special_characters_in_params(
-    api_client_factory: ApiClientFactory, httpbin_container
-):
+def test_get_with_special_characters_in_params(rest_client: RestApiClient):
     """Test GET request with special characters in parameters."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.get(
         "/get", params={"search": "test & value", "email": "user@example.com"}
     )
@@ -190,10 +180,8 @@ def test_get_with_special_characters_in_params(
     assert json_data["args"]["email"] == "user@example.com"
 
 
-def test_post_with_array_data(api_client_factory: ApiClientFactory, httpbin_container):
+def test_post_with_array_data(rest_client: RestApiClient):
     """Test POST request with array data."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     payload = {"users": ["user1", "user2", "user3"], "tags": [1, 2, 3, 4, 5]}
 
     response = rest_client.post("/post", payload=payload)
@@ -204,10 +192,8 @@ def test_post_with_array_data(api_client_factory: ApiClientFactory, httpbin_cont
     assert json_data["json"]["tags"] == [1, 2, 3, 4, 5]
 
 
-def test_response_content_type(api_client_factory: ApiClientFactory, httpbin_container):
+def test_response_content_type(rest_client: RestApiClient):
     """Test that response has correct content type."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.get("/get")
 
     assert response.status_code == 200
@@ -224,10 +210,8 @@ def test_factory_creates_new_instances(api_client_factory: ApiClientFactory):
     assert id(client1) != id(client2)
 
 
-def test_put_request(api_client_factory: ApiClientFactory, httpbin_container):
+def test_put_request(rest_client: RestApiClient):
     """Test PUT request with JSON payload."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     payload = {"id": 1, "name": "Updated Name", "email": "updated@example.com"}
 
     response = rest_client.put("/put", payload=payload)
@@ -238,10 +222,8 @@ def test_put_request(api_client_factory: ApiClientFactory, httpbin_container):
     assert json_data["json"]["name"] == "Updated Name"
 
 
-def test_patch_request(api_client_factory: ApiClientFactory, httpbin_container):
+def test_patch_request(rest_client: RestApiClient):
     """Test PATCH request with partial JSON payload."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     payload = {"name": "Partially Updated"}
 
     response = rest_client.patch("/patch", payload=payload)
@@ -252,10 +234,8 @@ def test_patch_request(api_client_factory: ApiClientFactory, httpbin_container):
     assert json_data["json"]["name"] == "Partially Updated"
 
 
-def test_request_with_timeout(api_client_factory: ApiClientFactory, httpbin_container):
+def test_request_with_timeout(rest_client: RestApiClient):
     """Test request with custom timeout."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     # Test with short timeout - should succeed for fast endpoint
     response = rest_client.get("/get", timeout=5)
     assert response.status_code == 200
@@ -265,10 +245,8 @@ def test_request_with_timeout(api_client_factory: ApiClientFactory, httpbin_cont
     assert response.status_code == 200
 
 
-def test_put_with_timeout(api_client_factory: ApiClientFactory, httpbin_container):
+def test_put_with_timeout(rest_client: RestApiClient):
     """Test PUT request with timeout."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.put("/put", payload={"id": 1}, timeout=5)
 
     assert response.status_code == 200
@@ -276,10 +254,8 @@ def test_put_with_timeout(api_client_factory: ApiClientFactory, httpbin_containe
     assert json_data["json"]["id"] == 1
 
 
-def test_patch_with_timeout(api_client_factory: ApiClientFactory, httpbin_container):
+def test_patch_with_timeout(rest_client: RestApiClient):
     """Test PATCH request with timeout."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.patch("/patch", payload={"status": "updated"}, timeout=5)
 
     assert response.status_code == 200
@@ -287,10 +263,8 @@ def test_patch_with_timeout(api_client_factory: ApiClientFactory, httpbin_contai
     assert json_data["json"]["status"] == "updated"
 
 
-def test_delete_with_timeout(api_client_factory: ApiClientFactory, httpbin_container):
+def test_delete_with_timeout(rest_client: RestApiClient):
     """Test DELETE request with timeout."""
-    rest_client = api_client_factory.create_rest_client(base_url=httpbin_container)
-
     response = rest_client.delete("/delete", timeout=5)
 
     assert response.status_code == 200

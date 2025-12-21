@@ -12,7 +12,14 @@ build-ci-docker user-id='1000':
 
 # Clean project
 clean:
-    git clean -fdX .
+    rm -rf .pytest_cache
+    rm -rf .mypy_cache
+    rm -rf __pycache__
+    rm -rf packages/**/__pycache__
+    rm -rf packages/*/__pycache__
+    rm -rf htmlcov
+    rm -rf coverage.xml
+    rm -rf pytest.xml
 
 # Runs linting for python code
 lint:
