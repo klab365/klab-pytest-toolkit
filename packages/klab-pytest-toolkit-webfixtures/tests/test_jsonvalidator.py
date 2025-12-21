@@ -1,9 +1,9 @@
 import pytest
-from klab_pytest_toolkit_webfixtures import JsonResponseValidatorFactory
+from klab_pytest_toolkit_webfixtures import ResponseValidatorFactory
 
 
 def test_validator_with_valid_data(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test basic validation with valid data."""
     # arrange
@@ -17,7 +17,7 @@ def test_validator_with_valid_data(
         "required": ["id", "name", "email"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
     valid_response = {"id": 1, "name": "John Doe", "email": "john@test.com"}
 
     # act & assert
@@ -26,7 +26,7 @@ def test_validator_with_valid_data(
 
 
 def test_validator_with_invalid_type(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation fails when data type is incorrect."""
     # arrange
@@ -39,7 +39,7 @@ def test_validator_with_invalid_type(
         "required": ["id", "name"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
     invalid_response = {
         "id": "not-a-number",  # Should be integer
         "name": "John Doe",
@@ -58,7 +58,7 @@ def test_validator_with_invalid_type(
 
 
 def test_validator_with_missing_required_field(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation fails when required field is missing."""
     # arrange
@@ -72,7 +72,7 @@ def test_validator_with_missing_required_field(
         "required": ["id", "name", "email"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
     invalid_response = {
         "id": 1,
         "name": "John Doe",
@@ -89,7 +89,7 @@ def test_validator_with_missing_required_field(
 
 
 def test_validator_with_extra_fields_allowed(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test that additional properties are allowed by default."""
     # arrange
@@ -101,7 +101,7 @@ def test_validator_with_extra_fields_allowed(
         "required": ["id"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
     data_with_extra = {
         "id": 1,
         "extra_field": "value",
@@ -113,7 +113,7 @@ def test_validator_with_extra_fields_allowed(
 
 
 def test_validator_with_strict_schema(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test strict schema that disallows additional properties."""
     # arrange
@@ -126,7 +126,7 @@ def test_validator_with_strict_schema(
         "additionalProperties": False,  # Explicitly disallow extras
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
     data_with_extra = {
         "id": 1,
         "extra_field": "value",
@@ -138,7 +138,7 @@ def test_validator_with_strict_schema(
 
 
 def test_validator_with_nested_objects(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation of nested object structures."""
     # arrange
@@ -165,7 +165,7 @@ def test_validator_with_nested_objects(
         "required": ["user", "post"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     valid_nested = {
         "user": {"id": 1, "name": "John"},
@@ -177,7 +177,7 @@ def test_validator_with_nested_objects(
 
 
 def test_validator_with_array_validation(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation of array data."""
     # arrange
@@ -200,7 +200,7 @@ def test_validator_with_array_validation(
         "required": ["users"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     valid_array_data = {
         "users": [
@@ -219,7 +219,7 @@ def test_validator_with_array_validation(
 
 
 def test_validator_with_enum_constraint(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation with enum constraints."""
     # arrange
@@ -232,7 +232,7 @@ def test_validator_with_enum_constraint(
         "required": ["status", "priority"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     valid_data = {"status": "active", "priority": "high"}
     invalid_data = {"status": "invalid_status", "priority": "medium"}
@@ -243,7 +243,7 @@ def test_validator_with_enum_constraint(
 
 
 def test_validator_with_number_constraints(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation with numeric constraints."""
     # arrange
@@ -256,7 +256,7 @@ def test_validator_with_number_constraints(
         "required": ["age", "rating"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     valid_data = {"age": 25, "rating": 4.5}
     invalid_age = {"age": -5, "rating": 4.5}  # Negative age
@@ -269,7 +269,7 @@ def test_validator_with_number_constraints(
 
 
 def test_validator_with_string_patterns(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation with string pattern constraints."""
     # arrange
@@ -285,7 +285,7 @@ def test_validator_with_string_patterns(
         "required": ["email"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     valid_data = {"email": "test@example.com", "phone": "+1234567890"}
     invalid_email = {"email": "not-an-email"}
@@ -296,7 +296,7 @@ def test_validator_with_string_patterns(
 
 
 def test_validator_with_raise_on_error(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test that validator raises exception when configured to do so."""
     # arrange
@@ -308,7 +308,7 @@ def test_validator_with_raise_on_error(
         "required": ["id"],
     }
 
-    validator = json_response_validator_factory.create_validator(
+    validator = response_validator_factory.create_json_validator(
         schema=schema,
         raise_on_error=True,
     )
@@ -321,7 +321,7 @@ def test_validator_with_raise_on_error(
 
 
 def test_validator_without_raise_on_error(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test that validator returns False instead of raising."""
     # arrange
@@ -333,7 +333,7 @@ def test_validator_without_raise_on_error(
         "required": ["id"],
     }
 
-    validator = json_response_validator_factory.create_validator(
+    validator = response_validator_factory.create_json_validator(
         schema=schema,
         raise_on_error=False,
     )
@@ -345,7 +345,7 @@ def test_validator_without_raise_on_error(
 
 
 def test_multiple_validators_in_one_test(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test creating multiple validators for different schemas in one test."""
     # arrange
@@ -379,9 +379,9 @@ def test_multiple_validators_in_one_test(
     }
 
     # act
-    user_validator = json_response_validator_factory.create_validator(user_schema)
-    post_validator = json_response_validator_factory.create_validator(post_schema)
-    comment_validator = json_response_validator_factory.create_validator(comment_schema)
+    user_validator = response_validator_factory.create_json_validator(user_schema)
+    post_validator = response_validator_factory.create_json_validator(post_schema)
+    comment_validator = response_validator_factory.create_json_validator(comment_schema)
 
     user_data = {"id": 1, "username": "johndoe"}
     post_data = {"id": 1, "title": "My Post", "content": "Content"}
@@ -394,11 +394,11 @@ def test_multiple_validators_in_one_test(
 
 
 def test_validator_no_schema_raises_error(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test that validator raises error when no schema is set."""
     # arrange
-    validator = json_response_validator_factory.create_validator(schema=None)
+    validator = response_validator_factory.create_json_validator(schema=None)
     data = {"id": 1}
 
     # act & assert
@@ -407,7 +407,7 @@ def test_validator_no_schema_raises_error(
 
 
 def test_validator_with_optional_fields(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation with optional fields."""
     # arrange
@@ -421,7 +421,7 @@ def test_validator_with_optional_fields(
         "required": ["id", "name"],  # description is not required
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     data_with_optional = {"id": 1, "name": "Test", "description": "A test"}
     data_without_optional = {"id": 1, "name": "Test"}
@@ -432,7 +432,7 @@ def test_validator_with_optional_fields(
 
 
 def test_validator_complex_real_world_api_response(
-    json_response_validator_factory: JsonResponseValidatorFactory,
+    response_validator_factory: ResponseValidatorFactory,
 ):
     """Test validation of complex real-world API response structure."""
     # arrange
@@ -485,7 +485,7 @@ def test_validator_complex_real_world_api_response(
         "required": ["success", "data"],
     }
 
-    validator = json_response_validator_factory.create_validator(schema)
+    validator = response_validator_factory.create_json_validator(schema)
 
     complex_response = {
         "success": True,
