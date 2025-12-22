@@ -87,27 +87,37 @@ def rest_api_client(api_client_factory, httpbin_container) -> RestApiClient:
 The REST API client provides functions to make HTTP requests. These are some examples:
 
 ```python
-def test_get_users(rest_api_client):
-    """Test GET /users endpoint."""
-    response = rest_api_client.get("/users")
+def test_get_request(rest_api_client: RestApiClient):
+    """Test basic GET request with query parameters."""
+    response = rest_api_client.get("/get", params={"test": "value"})
+
     assert response.status_code == 200
+    json_data = response.json()
+    assert json_data["args"]["test"] == "value"
 
-def test_create_user(rest_api_client):
-    """Test POST /users endpoint."""
-    user_data = {"name": "Jane Doe"}
-    response = rest_api_client.post("/users", json=user_data)
-    assert response.status_code == 201
+def test_post_request(rest_api_client: RestApiClient):
+    """Test basic POST request with JSON body."""
+    response = rest_api_client.post("/post", payload={"key": "value"})
 
-def test_update_user(rest_api_client):
-    """Test PUT /users/{id} endpoint."""
-    user_data = {"name": "Jane Smith"}
-    response = rest_api_client.put("/users/1", json=user_data)
     assert response.status_code == 200
+    json_data = response.json()
+    assert json_data["json"]["key"] == "value"
 
-def test_delete_user(rest_api_client):
-    """Test DELETE /users/{id} endpoint."""
-    response = rest_api_client.delete("/users/1")
-    assert response.status_code == 204
+def test_update_request(rest_api_client: RestApiClient):
+    """Test basic PUT request with JSON body."""
+    response = rest_api_client.put("/put", payload={"update": "data"})
+
+    assert response.status_code == 200
+    json_data = response.json()
+    assert json_data["json"]["update"] == "data"
+
+def test_delete_request(rest_api_client: RestApiClient):
+    """Test basic DELETE request."""
+    response = rest_api_client.delete("/delete")
+
+    assert response.status_code == 200
+    json_data = response.json()
+    assert json_data["url"].endswith("/delete")
 ```
 
 ### Playwright Web Client
@@ -115,6 +125,7 @@ def test_delete_user(rest_api_client):
 **Create the fixture**
 
 The factory class `WebClientFactory` is already provided as a pytest fixture `web_client_factory`.
+For playwright, you might install the browsers first by running `playwright install` in your environment.
 You can create a Playwright web client fixture as shown below:
 
 ```python

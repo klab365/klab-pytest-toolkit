@@ -23,6 +23,11 @@ dependencies = [
     "requests>=2.32.5",
 ]
 
+[project.urls]
+Changelog = "https://github.com/klab365/klab-pytest-toolkit/blob/main/CHANGELOG.md"
+Repository = "https://github.com/klab365/klab-pytest-toolkit"
+Issues = "https://github.com/klab365/klab-pytest-toolkit/issues"
+
 [project.entry-points.pytest11]
 klab_pytest_toolkit_webfixtures = "klab_pytest_toolkit_webfixtures.plugin"
 

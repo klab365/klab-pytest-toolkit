@@ -1,0 +1,39 @@
+name: CD - Build and Publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Required for trusted publishing to PyPI
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+      
+      - name: Build docker image
+        run: just build-ci-docker
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Extracted version: $TAG_NAME"
+
+      - name: Update package versions
+        run: just update-version ${{ steps.extract_version.outputs.VERSION }}
+
+      - name: Build packages
+        run: just build
+
+      - name: Publish to PyPI
+        run: just publish ${{ secrets.PYPI_API_TOKEN }}
