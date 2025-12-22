@@ -12,7 +12,7 @@ from klab_pytest_toolkit_webfixtures.web_client import (
     WebClient,
 )
 
-__version__ = "0.0.1"
+__version__ = "0.0.0"
 
 __all__ = [
     "JsonResponseValidator",

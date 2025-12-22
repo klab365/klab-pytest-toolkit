@@ -45,3 +45,49 @@ test args='':
         --cov=packages \
         {{ args }} \
         packages
+
+# Update version in all packages
+update-version version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Updating all packages to version {{version}}"
+    for pkg in packages/*/; do
+        echo "Processing package $pkg"
+        pkg_name=$(basename $pkg)
+        init_file=$(find $pkg/src -name __init__.py | head -n1)
+        if [ -f "$init_file" ]; then
+            echo "Updating $pkg_name"
+            sed -i 's/__version__ = .*/__version__ = "{{version}}"/' "$init_file"
+        fi
+    done
+
+# Build all packages
+build:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Cleaning previous builds..."
+    rm -rf dist
+    mkdir -p dist
+
+    echo "Building all packages..."
+    for pkg in packages/*/; do
+        if [ -f "${pkg}pyproject.toml" ]; then
+            echo "Building $(basename $pkg)..."
+            {{ CMD_ENV }} uv build "$pkg"
+        fi
+    done
+    
+    echo "Collecting distributions..."
+    for pkg in packages/*/; do
+        if [ -d "${pkg}dist" ]; then
+            cp "${pkg}dist"/* dist/ 2>/dev/null || true
+        fi
+    done
+    
+    echo "Build complete!"
+    ls -lh dist/
+
+# Publish to PyPI (requires PYPI_TOKEN environment variable)
+publish token *args='':
+    @echo "Publishing to PyPI..."
+    {{ CMD_ENV }} uv publish dist/* --token {{token}} {{args}}

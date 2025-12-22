@@ -20,6 +20,11 @@ dependencies = [
     "pytest>=8.3.5",
 ]
 
+[project.urls]
+Changelog = "https://github.com/klab365/klab-pytest-toolkit/blob/main/CHANGELOG.md"
+Repository = "https://github.com/klab365/klab-pytest-toolkit"
+Issues = "https://github.com/klab365/klab-pytest-toolkit/issues"
+
 [project.entry-points.pytest11]
 klab_pytest_toolkit_decorators = "klab_pytest_toolkit_decorators.plugin"
 
