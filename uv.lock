@@ -6,7 +6,7 @@ requires-python = ">=3.11, <4"
 members = [
     "klab-pytest-toolkit-decorators",
     "klab-pytest-toolkit-prompt",
-    "klab-pytest-toolkit-webfixtures",
+    "klab-pytest-toolkit-web",
 ]
 
 [manifest.dependency-groups]
@@ -455,8 +455,8 @@ dependencies = [
 requires-dist = [{ name = "pytest", specifier = ">=8.3.5" }]
 
 [[package]]
-name = "klab-pytest-toolkit-webfixtures"
-source = { editable = "packages/klab-pytest-toolkit-webfixtures" }
+name = "klab-pytest-toolkit-web"
+source = { editable = "packages/klab-pytest-toolkit-web" }
 dependencies = [
     { name = "grpcio" },
     { name = "grpcio-reflection" },

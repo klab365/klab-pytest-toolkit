@@ -1,7 +1,7 @@
 """Pytest plugin to register web fixtures."""
 
 import pytest
-from klab_pytest_toolkit_webfixtures import (
+from klab_pytest_toolkit_web import (
     ApiClientFactory,
     ResponseValidatorFactory,
     WebClientFactory,

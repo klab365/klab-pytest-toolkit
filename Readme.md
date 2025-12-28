@@ -10,11 +10,11 @@ The toolkit dont aim to replace or force to a specific pattern. It is a extensio
 
 The toolkit includes the following components:
 
-| Package                                                                       | Description                                                                            |
-| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| [klab-pytest-toolkit-decorators](./packages/klab-pytest-toolkit-decorators)   | Custom pytest decorators for marking and annotating tests                              |
-| [klab-pytest-toolkit-prompt](./packages/klab-pytest-toolkit-prompt)           | Interactive user prompts during test execution using tkinter UI dialogs                |
-| [klab-pytest-toolkit-webfixtures](./packages/klab-pytest-toolkit-webfixtures) | Web testing fixtures with JSON validation, REST API client, and Playwright integration |
+| Package                                                                     | Description                                                                            |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [klab-pytest-toolkit-decorators](./packages/klab-pytest-toolkit-decorators) | Custom pytest decorators for marking and annotating tests                              |
+| [klab-pytest-toolkit-prompt](./packages/klab-pytest-toolkit-prompt)         | Interactive user prompts during test execution using tkinter UI dialogs                |
+| [klab-pytest-toolkit-web](./packages/klab-pytest-toolkit-web)               | Web testing fixtures with JSON validation, REST API client, and Playwright integration |
 
 ### Architecture
 

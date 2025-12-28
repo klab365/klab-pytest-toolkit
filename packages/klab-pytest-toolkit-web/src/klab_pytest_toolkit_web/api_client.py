@@ -1,7 +1,7 @@
 import grpc
-from klab_pytest_toolkit_webfixtures._api_client_types.rest_client import RestApiClient
+from klab_pytest_toolkit_web._api_client_types.rest_client import RestApiClient
 from typing import Dict, Any, Optional, List, Tuple
-from klab_pytest_toolkit_webfixtures._api_client_types.grpc_client import GrpcClient
+from klab_pytest_toolkit_web._api_client_types.grpc_client import GrpcClient
 
 
 class ApiClientFactory:

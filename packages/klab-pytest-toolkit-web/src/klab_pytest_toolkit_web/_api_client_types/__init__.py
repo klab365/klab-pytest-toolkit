@@ -1,4 +1,4 @@
-"""API client types for the klab-pytest-toolkit-webfixtures package."""
+"""API client types for the klab-pytest-toolkit-web package."""
 
 import abc
 

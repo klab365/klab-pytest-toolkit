@@ -1,12 +1,12 @@
 """Tests for gRPC client functionality."""
 
-from klab_pytest_toolkit_webfixtures.api_client import ApiClientFactory
+from klab_pytest_toolkit_web.api_client import ApiClientFactory
 import pytest
 import grpc
 from pathlib import Path
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.wait_strategies import LogMessageWaitStrategy
-from klab_pytest_toolkit_webfixtures._api_client_types.grpc_client import GrpcClient
+from klab_pytest_toolkit_web._api_client_types.grpc_client import GrpcClient
 
 
 @pytest.fixture(scope="session")
