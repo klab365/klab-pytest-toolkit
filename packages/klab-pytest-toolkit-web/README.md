@@ -8,6 +8,7 @@ At the moment the package provides the following fixtures:
 - `response_validator_factory`: Factory for create JSON response validator instances with custom configurations.
 - `api_client_factory`: Factory for create different API client instances.
   - REST API client for making HTTP requests to RESTful services.
+  - gRPC client for making gRPC calls to gRPC services.
 - `web_client_factory`: Factory to create web client instances for browser automation
   - Playwright-based web client for end-to-end testing of web applications.
 
@@ -195,10 +196,7 @@ def test_wait_for_element(web_client):
 
 ## Examples
 
-See the test files for comprehensive examples:
-- `tests/test_jsonvalidator.py` - JSON validation examples covering basic validation, type checking, nested objects, constraints, and error handling
-- `tests/test_restapiclient.py` - REST API client examples with testcontainers integration
-- `tests/test_playwrightclient.py` - Playwright web client examples for browser automation with testcontainers
+See the test files for comprehensive examples.
 
 ## Best Practices
 

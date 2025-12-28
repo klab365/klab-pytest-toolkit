@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### klab-pytest-toolkit-embedded
+- Added initial structure for embedded testing toolkit
+- Created `DebugProbe` abstract base class for debug probe implementations
+- Created `CommunicatorInterface` abstract base class for communication interfaces
+- Implemented `SerialCommunicator` for serial port communication
+- Implemented `EspTool` debug probe for ESP32 devices
+
 ## 1.0.0
 
 ### Added

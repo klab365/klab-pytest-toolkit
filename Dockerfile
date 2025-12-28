@@ -53,6 +53,9 @@ RUN <<EOF
     locale-gen en_US.UTF-8
     update-locale LANG=en_US.UTF-8
 
+    # Add dev user to dialout group for serial port access
+    usermod -a -G dialout dev
+
     # Setup shell for dev user
     chsh -s /bin/zsh dev
     su - dev -c 'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
