@@ -1,5 +1,5 @@
 NETWORK_MODE := "--net host"
-CMD_ENV := if path_exists('/.dockerenv') == "false" { 'docker run --init --rm --user $(id -u):$(id -g) --group-add $(stat -c "%g" /var/run/docker.sock) -v $(pwd):/workspaces/klab-pytest-toolkit -v /var/run/docker.sock:/var/run/docker.sock ' + NETWORK_MODE + ' -w /workspaces/klab-pytest-toolkit klab-pytest-toolkit-build' } else { '' }
+CMD_ENV := if path_exists('/.dockerenv') == "false" { 'docker run --init --rm --user $(id -u):$(id -g) --group-add $(stat -c "%g" /var/run/docker.sock) -v $(pwd):/workspaces/klab-pytest-toolkit -v /var/run/docker.sock:/var/run/docker.sock -e UV_CACHE_DIR=${UV_CACHE_DIR:-/tmp/.cache/uv} ' + NETWORK_MODE + ' -w /workspaces/klab-pytest-toolkit klab-pytest-toolkit-build' } else { '' }
 
 # Build ci docker
 build-ci-docker user-id='1000':
@@ -54,11 +54,22 @@ update-version version:
     for pkg in packages/*/; do
         echo "Processing package $pkg"
         pkg_name=$(basename $pkg)
-        init_file=$(find $pkg/src -name __init__.py | head -n1)
-        if [ -f "$init_file" ]; then
-            echo "Updating $pkg_name"
-            sed -i 's/__version__ = .*/__version__ = "{{version}}"/' "$init_file"
+        # Convert package name to module name (e.g., klab-pytest-toolkit-web -> klab_pytest_toolkit_web)
+        module_name=$(echo $pkg_name | tr '-' '_')
+        init_file="$pkg/src/$module_name/__init__.py"
+        
+        if [ ! -f "$init_file" ]; then
+            echo "ERROR: __init__.py not found at $init_file for package $pkg_name"
+            exit 1
         fi
+        
+        if ! grep -q '__version__' "$init_file"; then
+            echo "ERROR: __version__ not found in $init_file for package $pkg_name"
+            exit 1
+        fi
+        
+        echo "Updating $pkg_name at $init_file"
+        sed -i 's/__version__ = .*/__version__ = "{{version}}"/' "$init_file"
     done
 
 # Build all packages
