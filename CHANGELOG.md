@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `web_client_factory` fixture for Playwright-based browser automation
 - `JsonResponseValidator` with JSON schema validation support
 - `RestApiClient` for HTTP requests with built-in validation
+- `GrpcClient` for gRPC service interaction
 - `WebClient` wrapper for Playwright browser testing
 - Pytest plugin integration
 

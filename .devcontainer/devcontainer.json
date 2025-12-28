@@ -34,7 +34,8 @@
                 "sclu1034.justfile",
                 "tamasfe.even-better-toml",
                 "charliermarsh.ruff",
-                "yzhang.markdown-all-in-one"
+                "yzhang.markdown-all-in-one",
+                "DrBlury.protobuf-vsc"
             ]
         }
     },

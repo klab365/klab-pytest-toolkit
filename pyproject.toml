@@ -32,3 +32,8 @@ pythonpath = [
 filterwarnings = [
   "ignore::DeprecationWarning:testcontainers.core.waiting_utils",
 ]
+
+[tool.ty.src]
+exclude = [
+    "**/assets",
+]
