@@ -17,7 +17,8 @@
         }
     },
     "runArgs": [
-        "--net", "host"
+        "--net", "host",
+        "--device=/dev/ttyUSB0:/dev/ttyUSB0",
     ],
     "mounts": [
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
