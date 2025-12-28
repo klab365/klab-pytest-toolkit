@@ -1,5 +1,5 @@
 NETWORK_MODE := "--net host"
-CMD_ENV := if path_exists('/.dockerenv') == "false" { 'docker run --init --rm --user $(id -u):$(id -g) --group-add $(stat -c "%g" /var/run/docker.sock) -v $(pwd):/workspaces/klab-pytest-toolkit -v /var/run/docker.sock:/var/run/docker.sock ' + NETWORK_MODE + ' -w /workspaces/klab-pytest-toolkit klab-pytest-toolkit-build' } else { '' }
+CMD_ENV := if path_exists('/.dockerenv') == "false" { 'docker run --init --rm --user $(id -u):$(id -g) --group-add $(stat -c "%g" /var/run/docker.sock) -v $(pwd):/workspaces/klab-pytest-toolkit -v /var/run/docker.sock:/var/run/docker.sock -e UV_CACHE_DIR=${UV_CACHE_DIR:-/tmp/.cache/uv} ' + NETWORK_MODE + ' -w /workspaces/klab-pytest-toolkit klab-pytest-toolkit-build' } else { '' }
 
 # Build ci docker
 build-ci-docker user-id='1000':
