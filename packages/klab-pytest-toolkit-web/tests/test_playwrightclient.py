@@ -5,7 +5,7 @@ import os
 import pytest
 from testcontainers.core.container import DockerContainer
 
-from klab_pytest_toolkit_webfixtures import WebClientFactory
+from klab_pytest_toolkit_web import WebClientFactory
 
 
 # HTML content for testing

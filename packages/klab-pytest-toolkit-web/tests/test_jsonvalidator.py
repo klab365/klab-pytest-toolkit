@@ -1,5 +1,5 @@
 import pytest
-from klab_pytest_toolkit_webfixtures import ResponseValidatorFactory
+from klab_pytest_toolkit_web import ResponseValidatorFactory
 
 
 def test_validator_with_valid_data(

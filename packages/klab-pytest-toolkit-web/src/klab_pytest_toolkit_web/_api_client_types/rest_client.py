@@ -1,5 +1,5 @@
 from typing import Any, Dict, Optional
-from klab_pytest_toolkit_webfixtures._api_client_types import ApiClient
+from klab_pytest_toolkit_web._api_client_types import ApiClient
 import requests
 
 

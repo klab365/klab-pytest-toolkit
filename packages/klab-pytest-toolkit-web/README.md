@@ -14,7 +14,7 @@ At the moment the package provides the following fixtures:
 ## Installation
 
 ```bash
-pip install klab-pytest-toolkit-webfixtures
+pip install klab-pytest-toolkit-web
 ```
 
 ## Usage

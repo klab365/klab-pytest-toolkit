@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read        # For checkout and comparing commits
-  pull-requests: write  # For creating/updating PR comments
-
 jobs:
   build:
     permissions:
@@ -37,6 +33,7 @@ jobs:
         run: just lint
 
       - name: Pytest coverage comment
+        if: github.event_name == 'pull_request'
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-xml-coverage-path: ./coverage.xml

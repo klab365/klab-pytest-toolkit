@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `PromptInterface` and `PromptFactory` core classes
 - Pytest plugin integration
 
-#### klab-pytest-toolkit-webfixtures
+#### klab-pytest-toolkit-web
 - Initial release
 - `response_validator_factory` fixture for JSON response validation
 - `api_client_factory` fixture for creating REST API clients

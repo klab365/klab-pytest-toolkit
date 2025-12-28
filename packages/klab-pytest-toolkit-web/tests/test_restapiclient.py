@@ -1,4 +1,4 @@
-from klab_pytest_toolkit_webfixtures.api_client import ApiClientFactory, RestApiClient
+from klab_pytest_toolkit_web.api_client import ApiClientFactory, RestApiClient
 import pytest
 from testcontainers.core.container import DockerContainer
 from testcontainers.core.wait_strategies import HttpWaitStrategy

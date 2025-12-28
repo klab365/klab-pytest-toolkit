@@ -5,7 +5,7 @@ import importlib.util
 import tempfile
 import sys
 from grpc_tools import protoc
-from klab_pytest_toolkit_webfixtures._api_client_types import ApiClient
+from klab_pytest_toolkit_web._api_client_types import ApiClient
 
 
 class GrpcClient(ApiClient):

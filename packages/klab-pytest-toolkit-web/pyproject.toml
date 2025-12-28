@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "klab-pytest-toolkit-webfixtures"
+name = "klab-pytest-toolkit-web"
 dynamic = ["version"]
 description = "Pytest web fixtures for the Klab Pytest Toolkit"
 authors = [{ name = "Burak Kizilkaya", email = "burak.kizilkaya@outlook.com" }]
@@ -32,10 +32,10 @@ Repository = "https://github.com/klab365/klab-pytest-toolkit"
 Issues = "https://github.com/klab365/klab-pytest-toolkit/issues"
 
 [project.entry-points.pytest11]
-klab_pytest_toolkit_webfixtures = "klab_pytest_toolkit_webfixtures.plugin"
+klab_pytest_toolkit_web = "klab_pytest_toolkit_web.plugin"
 
 [tool.hatch.version]
-path = "src/klab_pytest_toolkit_webfixtures/__init__.py"
+path = "src/klab_pytest_toolkit_web/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
