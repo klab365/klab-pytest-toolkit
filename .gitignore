@@ -4,6 +4,7 @@
 ### Custom ###
 pytest.xml
 pytest-coverage.txt
+tmp/
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

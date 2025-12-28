@@ -120,6 +120,36 @@ def test_delete_request(rest_api_client: RestApiClient):
     assert json_data["url"].endswith("/delete")
 ```
 
+### gRPC Client
+
+**Create the fixture**
+
+The factory class `ApiClientFactory` is already provided as a pytest fixture `api_client_factory`.
+You can create a gRPC client fixture as shown below:
+
+```python
+@pytest.fixture
+def grpc_client(api_client_factory) -> GrpcClient:
+    """Fixture to provide a gRPC client."""
+    return api_client_factory.create_grpc_client(
+        target="localhost:50051",
+        proto_file="path/to/your/service.proto"
+    )
+```
+
+**Functions**
+
+The `GrpcClient` provides gRPC call functionality by dynamically invoking methods defined in the provided proto file. It is imported the that the proto file defines a service with methods like `GetUser`. You will not get any code completion in your IDE since the methods are dynamically resolved at runtime, but you get error handling if the method does not exist.
+
+```python
+def test_grpc_get_user(grpc_client: GrpcClient):
+    """Test gRPC GetUser call."""
+    response = grpc_client.GetUser(id=123)
+
+    assert response.id == 123
+    assert response.name == "John Doe"
+```
+
 ### Playwright Web Client
 
 **Create the fixture**
