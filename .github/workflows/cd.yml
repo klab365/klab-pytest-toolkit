@@ -16,11 +16,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install just
-        uses: extractions/setup-just@v2
-      
-      - name: Build docker image
-        run: just build-ci-docker
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        env:
+          # cd.yml doesn't run tests or invoke Playwright, so skip the
+          # postinstall hooks (which would try to install Playwright
+          # browsers and apt packages). We still need uv installed so
+          # subsequent ``mise run build`` and ``mise run publish`` work.
+          MISE_NO_HOOKS: "1"
 
       - name: Extract version from tag
         id: extract_version
@@ -30,10 +33,10 @@ jobs:
           echo "Extracted version: $TAG_NAME"
 
       - name: Update package versions
-        run: just update-version ${{ steps.extract_version.outputs.VERSION }}
+        run: mise run update-version ${{ steps.extract_version.outputs.VERSION }}
 
       - name: Build packages
-        run: just build
+        run: mise run build
 
       - name: Publish to PyPI
-        run: just publish ${{ secrets.PYPI_API_TOKEN }}
+        run: mise run publish ${{ secrets.PYPI_API_TOKEN }}

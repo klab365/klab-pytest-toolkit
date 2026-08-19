@@ -1,15 +1,19 @@
 # Klab Pytest Toolkit - Web Fixtures
 
+[![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-web)](https://pypi.org/project/klab-pytest-toolkit-web/)
+[![Python](https://img.shields.io/pypi/pyversions/klab-pytest-toolkit-web)](https://pypi.org/project/klab-pytest-toolkit-web/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
+
 Custom pytest fixtures for web testing.
-The goal is to allow testers to easily test web applications (html/json/rest api) with reusable components.
+The goal is to allow testers to easily test web applications (HTML, JSON, REST API) with reusable components.
 
 At the moment the package provides the following fixtures:
 
-- `response_validator_factory`: Factory for create JSON response validator instances with custom configurations.
-- `api_client_factory`: Factory for create different API client instances.
+- `response_validator_factory`: Factory for creating JSON response validator instances with custom configurations.
+- `api_client_factory`: Factory for creating different API client instances.
   - REST API client for making HTTP requests to RESTful services.
   - gRPC client for making gRPC calls to gRPC services.
-- `web_client_factory`: Factory to create web client instances for browser automation
+- `web_client_factory`: Factory for creating web client instances for browser automation.
   - Playwright-based web client for end-to-end testing of web applications.
 
 ## Installation
@@ -204,6 +208,12 @@ See the test files for comprehensive examples.
 
 When testing web applications, it's recommended to use testcontainers to create isolated environments for your services.
 This ensures that your tests are reproducible and do not interfere with each other.
+
+## Links
+
+- [Source code](https://github.com/klab365/klab-pytest-toolkit/tree/main/packages/klab-pytest-toolkit-web)
+- [PyPI](https://pypi.org/project/klab-pytest-toolkit-web/)
+- [Issue tracker](https://github.com/klab365/klab-pytest-toolkit/issues)
 
 ## License
 

@@ -24,8 +24,12 @@ exclude_lines = [
 ]
 
 [tool.pytest.ini_options]
-asyncio_mode = "auto"
+asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
+# Hardware-only tests are excluded from default runs because they require a
+# physical ESP32 board connected at /dev/ttyUSB0. Run them explicitly with:
+#   uv run pytest packages/klab-pytest-toolkit-embedded/tests/test_esp32_hardware.py
+addopts = "--ignore=packages/klab-pytest-toolkit-embedded/tests/test_esp32_hardware.py"
 pythonpath = [
   "."
 ]

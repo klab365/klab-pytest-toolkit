@@ -6,6 +6,20 @@ from klab_pytest_toolkit_embedded.board import Board
 from klab_pytest_toolkit_embedded.debug_probes import EspTool
 from klab_pytest_toolkit_embedded.communicators import SerialCommunicator
 
+# Hardware-only tests.
+#
+# This file is excluded by default in pyproject.toml's [tool.pytest.ini_options]
+# (`addopts = "--ignore=…/test_esp32_hardware.py"`) because it requires a
+# physical ESP32 board connected at /dev/ttyUSB0.
+#
+# To run these tests locally on a machine that has the hardware:
+#
+#     uv run pytest packages/klab-pytest-toolkit-embedded/tests/test_esp32_hardware.py
+#
+# Or temporarily override the ignore:
+#
+#     uv run pytest --override-ini="addopts=" packages/klab-pytest-toolkit-embedded/tests/test_esp32_hardware.py
+
 
 @pytest.fixture
 def dut() -> Generator[Board]:
@@ -20,7 +34,7 @@ def dut() -> Generator[Board]:
 @pytest.mark.skipif(
     True,
     reason="This test programs the firmware to a physical ESP32 device. "
-    "Enable it only when you have the hardware connected.",
+    "Remove this skipif when you have the hardware connected.",
 )
 def test_program_should_flash_firmware(dut: Board) -> None:
     test_dir = Path(__file__).parent
@@ -37,7 +51,7 @@ def test_program_should_flash_firmware(dut: Board) -> None:
 @pytest.mark.skipif(
     True,
     reason="This test programs the firmware to a physical ESP32 device. "
-    "Enable it only when you have the hardware connected.",
+    "Remove this skipif when you have the hardware connected.",
 )
 def test_wait_until_boot_up_message_shown_up(dut: Board) -> None:
     test_dir = Path(__file__).parent

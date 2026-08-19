@@ -1,5 +1,9 @@
 # Klab Pytest Toolkit - Embedded
 
+[![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-embedded)](https://pypi.org/project/klab-pytest-toolkit-embedded/)
+[![Python](https://img.shields.io/pypi/pyversions/klab-pytest-toolkit-embedded)](https://pypi.org/project/klab-pytest-toolkit-embedded/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
+
 Custom pytest fixtures for embedded systems testing.
 The goal is to allow testers to easily test embedded devices with reusable components for programming, resetting, and communicating with boards.
 
@@ -7,7 +11,7 @@ At the moment the package provides the following components:
 
 - `Board`: Main orchestration class for managing board operations, including programming, resetting, and communication.
 - Debug Probes:
-  - `EspTool`: Debug probe implementation for ESP32 devices using esptool.
+  - `EspTool`: Debug probe implementation for ESP32 devices using `esptool`.
 - Communicators:
   - `SerialCommunicator`: Serial port communication interface for UART/USB connections.
 
@@ -182,6 +186,12 @@ def test_with_hardware(dut: Board):
     # Test code here
     pass
 ```
+
+## Links
+
+- [Source code](https://github.com/klab365/klab-pytest-toolkit/tree/main/packages/klab-pytest-toolkit-embedded)
+- [PyPI](https://pypi.org/project/klab-pytest-toolkit-embedded/)
+- [Issue tracker](https://github.com/klab365/klab-pytest-toolkit/issues)
 
 ## License
 

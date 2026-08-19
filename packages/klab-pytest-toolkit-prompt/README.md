@@ -1,11 +1,15 @@
 # Klab Pytest Toolkit - Prompt
 
+[![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-prompt)](https://pypi.org/project/klab-pytest-toolkit-prompt/)
+[![Python](https://img.shields.io/pypi/pyversions/klab-pytest-toolkit-prompt)](https://pypi.org/project/klab-pytest-toolkit-prompt/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
+
 Custom pytest fixtures for interactive user prompts during test execution using tkinter UI dialogs.
 The goal is to allow testers to interact with the test process, providing confirmations or displaying important information.
 
 At the moment the package provides the following fixtures:
 
-- `ui_prompt_factory`: Factory for creating multiple prompt instance. With the factory you can create the prompt fixture.
+- `prompt_factory`: Factory for creating multiple prompt instances. Use the factory to create prompt fixtures.
 
 ## Installation
 
@@ -76,6 +80,12 @@ def test_with_timeout(ui_prompt):
 ## Examples
 
 See the `tests` directory for example test cases demonstrating the usage of the prompt fixtures.
+
+## Links
+
+- [Source code](https://github.com/klab365/klab-pytest-toolkit/tree/main/packages/klab-pytest-toolkit-prompt)
+- [PyPI](https://pypi.org/project/klab-pytest-toolkit-prompt/)
+- [Issue tracker](https://github.com/klab365/klab-pytest-toolkit/issues)
 
 ## License
 
