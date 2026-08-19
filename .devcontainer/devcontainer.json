@@ -1,45 +1,32 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-    "name": "klab-pytest devcontainer",
+    "name": "devcontainer: klab-pytest-toolkit",
     "build": {
-        "dockerfile": "../Dockerfile",
-        "context": "..",
-        "target": "development",
-        "args": {
-            "UID": "1000"
-        }
-    },
-    "features": {
-        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-            "version": "latest",
-            "moby": false
-        }
+        "dockerfile": "Dockerfile",
+        "context": ".."
     },
     "runArgs": [
-        "--net", "host",
-        "--device=/dev/ttyUSB0:/dev/ttyUSB0",
+        "--net", "host"
     ],
-    "mounts": [
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-    ],
-    "remoteUser": "dev",
+    "features": {
+        "ghcr.io/devcontainers-extra/features/mise:1": {},
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1.10.0": {}
+    },
     "customizations": {
         "vscode": {
             "extensions": [
+                "hverlin.mise-vscode",
+                "tombi-toml.tombi",
                 "mhutchie.git-graph",
-                "eamodio.gitlens",
                 "njpwerner.autodocstring",
-                "tamasfe.even-better-toml",
                 "asciidoctor.asciidoctor-vscode",
-                "sclu1034.justfile",
-                "tamasfe.even-better-toml",
                 "charliermarsh.ruff",
                 "yzhang.markdown-all-in-one",
                 "DrBlury.protobuf-vsc"
             ]
         }
     },
-    
-    "postCreateCommand": "echo 'Dev container ready for Python (uv) development!'"
+    "mounts": [],
+    "containerEnv": {},
+    "remoteEnv": {},
+    "postStartCommand": "mise trust && mise install"
 }

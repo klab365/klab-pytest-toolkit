@@ -14,23 +14,21 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-        
-      - uses: extractions/setup-just@v3
 
-      - name: Build CI Docker
-        run: just build-ci-docker $(id -u)
+      - name: Install mise
+        uses: jdx/mise-action@v2
 
       - name: Check Format
-        run: just format
-
-      - name: Run tests
-        run: just test
+        run: mise run format
 
       - name: Lint code
-        run: just lint
+        run: mise run lint
+
+      - name: Run tests
+        run: mise run test
 
       - name: Pytest coverage comment
         if: github.event_name == 'pull_request'
@@ -40,11 +38,10 @@ jobs:
           junitxml-path: ./pytest.xml
 
       - name: Update package versions to 0.0.0 for CI
-        run: just update-version 0.0.0
-      
-      - name: Build packages
-        run: just build
-      
-      - name: Publish to PyPI 0.0.0 version
-        run: just publish ${{ secrets.PYPI_API_TOKEN }} --dry-run
+        run: mise run update-version 0.0.0
 
+      - name: Build packages
+        run: mise run build
+
+      - name: Publish to PyPI 0.0.0 version
+        run: mise run publish ${{ secrets.PYPI_API_TOKEN }} --dry-run

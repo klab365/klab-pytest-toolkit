@@ -1,5 +1,5 @@
 import abc
-from typing import Optional
+from typing import Any, Optional
 
 
 class WebClient(abc.ABC):
@@ -239,17 +239,44 @@ class WebClient(abc.ABC):
 class PlayWrightWebClient(WebClient):
     """A web client implementation using Playwright."""
 
-    def __init__(self, headless: bool = True):
+    def __init__(
+        self,
+        headless: bool = True,
+        browser: Optional[Any] = None,
+        context: Optional[Any] = None,
+    ):
         """Initialize Playwright web client.
 
         Args:
-            headless: Whether to run the browser in headless mode (default: True)
+            headless: Whether to run the browser in headless mode (default: True).
+                Ignored if ``browser`` is provided.
+            browser: An already-launched Playwright ``Browser`` instance. When
+                provided, the client reuses it instead of launching a new one,
+                which dramatically speeds up tests that create many clients.
+                The caller is responsible for ``browser.close()`` lifecycle.
+            context: An optional ``BrowserContext`` to create the page in.
+                Defaults to a new context on the supplied/launched browser.
+                Reusing a context is faster but tests share cookies/storage —
+                use ``browser.new_context()`` per test for isolation.
         """
         from playwright.sync_api import sync_playwright
 
-        self._playwright = sync_playwright().start()
-        self._browser = self._playwright.chromium.launch(headless=headless)
-        self._page = self._browser.new_page()
+        self._owns_playwright = browser is None
+        if browser is None:
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.launch(headless=headless)
+        else:
+            self._playwright = None
+            self._browser = browser
+
+        if context is None:
+            self._context = self._browser.new_context()
+            self._owns_context = True
+        else:
+            self._context = context
+            self._owns_context = False
+
+        self._page = self._context.new_page()
 
     def navigate_to(self, url: str) -> None:
         """Navigate to a specified URL."""
@@ -332,9 +359,34 @@ class PlayWrightWebClient(WebClient):
         self._page.screenshot(path=path)
 
     def close(self) -> None:
-        """Close the browser and Playwright."""
-        self._browser.close()
-        self._playwright.stop()
+        """Close the browser and Playwright.
+
+        If the client was constructed from an externally-supplied browser (via
+        the ``browser`` constructor argument), only the page and context are
+        closed — the browser itself remains the caller's responsibility.
+        """
+        try:
+            self._page.close()
+        except Exception:
+            pass
+        if self._owns_context:
+            try:
+                self._context.close()
+            except Exception:
+                pass
+        if self._owns_playwright:
+            try:
+                self._browser.close()
+            except Exception:
+                pass
+            try:
+                # ``_playwright`` is set above to a real Playwright instance
+                # when ``_owns_playwright`` is True; narrow for the type
+                # checker.
+                assert self._playwright is not None
+                self._playwright.stop()
+            except Exception:
+                pass
 
 
 class WebClientFactory:
@@ -344,17 +396,28 @@ class WebClientFactory:
         PLAYWRIGHT = "playwright"
 
     @staticmethod
-    def create_client(client_type: str = "playwright", headless: bool = True) -> WebClient:
+    def create_client(
+        client_type: str = "playwright",
+        headless: bool = True,
+        browser: Optional[Any] = None,
+        context: Optional[Any] = None,
+    ) -> WebClient:
         """Create a web client based on the specified type.
 
         Args:
-            client_type: Type of web client to create (e.g., "playwright")
-            headless: Whether to run the browser in headless mode (default: True)
+            client_type: Type of web client to create (e.g., "playwright").
+            headless: Whether to run the browser in headless mode (default: True).
+                Ignored if ``browser`` is provided.
+            browser: An existing Playwright ``Browser`` to reuse instead of
+                launching a new one. Useful for test suites that create many
+                clients — sharing the browser removes the per-test launch cost.
+            context: An optional ``BrowserContext`` to create the page in.
+                Defaults to a fresh context on the supplied/launched browser.
 
         Returns:
             An instance of WebClient
         """
         if client_type == WebClientFactory.WebClientType.PLAYWRIGHT:
-            return PlayWrightWebClient(headless=headless)
+            return PlayWrightWebClient(headless=headless, browser=browser, context=context)
         else:
             raise ValueError(f"Unsupported client type: {client_type}")
