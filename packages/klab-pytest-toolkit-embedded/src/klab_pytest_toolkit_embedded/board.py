@@ -1,5 +1,7 @@
 import re
 import time
+from re import Pattern
+from typing import cast
 
 from klab_pytest_toolkit_embedded.communicators import CommunicatorInterface
 from klab_pytest_toolkit_embedded.debug_probes import DebugProbe
@@ -8,49 +10,56 @@ from klab_pytest_toolkit_embedded.debug_probes import DebugProbe
 class Board:
     """Main class for the orchestration of board operations.
 
-    This class uses a debug probe to program and reset the board,
-    and a communication interface to send and receive data.
-
-    It could be, that both functionalities are provided by the same physical device,
-    but this is abstracted away by using separate interfaces.
+    A board can be composed of optional capabilities such as a debug probe
+    and a communication interface.
     """
 
     def __init__(
         self,
-        debug_probe: DebugProbe,
-        communicator: CommunicatorInterface,
+        debug_probe: DebugProbe | None = None,
+        communicator: CommunicatorInterface | None = None,
     ):
         """Initialize the board.
 
         Args:
             debug_probe: Debug probe instance (e.g., EspTool)
-            communication_interface: Communication interface instance (e.g., SerialCommunicator)
+            communicator: Communication interface instance (e.g., SerialCommunicator)
         """
         self._debug_probe = debug_probe
         self._communicator = communicator
+
+    def _require_debug_probe(self) -> DebugProbe:
+        if self._debug_probe is None:
+            raise RuntimeError("This board has no debug probe")
+        return self._debug_probe
+
+    def _require_communicator(self) -> CommunicatorInterface:
+        if self._communicator is None:
+            raise RuntimeError("This board has no communicator")
+        return self._communicator
 
     def program(self, fw_image: str) -> None:
         """Flash the firmware image to the board.
 
         Args:
-            fw_image (str): Path to the firmware image.
+            fw_image: Path to the firmware image.
         """
-        self._debug_probe.program(fw_image)
+        self._require_debug_probe().program(fw_image)
 
     def reset(self) -> None:
         """Reset the board."""
-        self._debug_probe.reset()
+        self._require_debug_probe().reset()
 
     def receive_some(self, num_bytes: int = 1024) -> bytes:
         """Receive some data from the communication interface.
 
         Args:
-            num_bytes (int, optional): Number of bytes to receive. Defaults to 1024.
+            num_bytes: Number of bytes to receive. Defaults to 1024.
 
         Returns:
-            bytes: Received data.
+            Received data.
         """
-        return self._communicator.receive(num_bytes)
+        return self._require_communicator().receive(num_bytes)
 
     def send(self, data: bytes) -> None:
         """Send data to the device through the communication interface.
@@ -58,44 +67,62 @@ class Board:
         Args:
             data: Bytes to send
         """
-        self._communicator.send(data)
+        self._require_communicator().send(data)
 
-    def wait_for_regex_in_line(self, regex, timeout_s=20, log=True) -> bool:
+    def wait_for_regex_in_line(
+        self,
+        regex: str | bytes | Pattern[str] | Pattern[bytes],
+        timeout_s: float = 20,
+        log: bool = True,
+    ) -> bool:
         """Wait for a line matching the regex from the communication interface.
 
         Args:
             regex: Regular expression to match.
-            timeout_s (int, optional): Timeout in seconds. Defaults to 20.
-            log (bool, optional): Whether to log the output. Defaults to True.
+            timeout_s: Timeout in seconds. Defaults to 20.
+            log: Whether to log the output. Defaults to True.
 
         Returns:
-            bool: True if a matching line is found, False otherwise.
+            True if a matching line is found.
         """
-        received = b""  # Start with bytes, not string
-        start_time = time.time()
+        buffer = b""
+        start_time = time.monotonic()
         while True:
-            # Check for timeout
-            if time.time() - start_time > timeout_s:
-                raise TimeoutError(f"Timeout waiting for regex: {regex}")
+            if time.monotonic() - start_time > timeout_s:
+                raise TimeoutError(f"Timeout waiting for regex: {regex!r}")
 
-            # Check in already received data
-            lines = received.splitlines(keepends=True)
+            chunk = self.receive_some()
+            if log and chunk:
+                print(chunk.replace(b"\r", b"").decode("utf-8", errors="ignore"), end="")
+            buffer += chunk
 
-            for _, line in enumerate(lines):
-                regex_search = re.search(
-                    regex,
-                    line.replace(b"\r", b"").replace(b"\n", b"").decode("utf-8", errors="ignore"),
-                )
-                if regex_search:
+            lines = buffer.splitlines(keepends=True)
+            if buffer and buffer[-1:] not in (b"\n", b"\r"):
+                complete_lines = lines[:-1]
+                buffer = lines[-1]
+            else:
+                complete_lines = lines
+                buffer = b""
+
+            for line in complete_lines:
+                normalized = line.replace(b"\r", b"").replace(b"\n", b"")
+                if self._line_matches(regex, normalized):
                     return True
 
-            # Receive more data
-            chunk = self.receive_some()
+    @staticmethod
+    def _line_matches(regex: str | bytes | Pattern[str] | Pattern[bytes], line: bytes) -> bool:
+        if isinstance(regex, bytes):
+            return re.search(regex, line) is not None
 
-            if log:
-                print(chunk.replace(b"\r", b"").decode("utf-8", errors="ignore"), end="")
+        if isinstance(regex, str):
+            return re.search(regex, line.decode("utf-8", errors="ignore")) is not None
 
-            received = received + chunk
+        if isinstance(regex.pattern, bytes):
+            bytes_regex = cast(Pattern[bytes], regex)
+            return bytes_regex.search(line) is not None
+
+        str_regex = cast(Pattern[str], regex)
+        return str_regex.search(line.decode("utf-8", errors="ignore")) is not None
 
     def __enter__(self):
         """Enter context manager."""
@@ -103,5 +130,13 @@ class Board:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """Exit context manager."""
-        self._communicator.close()
-        self._debug_probe.close()
+        errors = []
+        for resource in (self._communicator, self._debug_probe):
+            if resource is None:
+                continue
+            try:
+                resource.close()
+            except Exception as exc:
+                errors.append(exc)
+        if errors:
+            raise errors[0]

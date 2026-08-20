@@ -1,5 +1,6 @@
 """Unit tests for the Board class."""
 
+import re
 from unittest.mock import patch
 
 import pytest
@@ -218,6 +219,20 @@ def test_wait_for_regex_unicode_handling(board, mock_communicator):
     assert result is True
 
 
+def test_wait_for_regex_bytes_pattern(board, mock_communicator):
+    """Test regex matching with bytes patterns."""
+    mock_communicator.add_to_buffer(b"Firmware Ready!\n")
+    result = board.wait_for_regex_in_line(b"Firmware Ready!", timeout_s=5, log=False)
+    assert result is True
+
+
+def test_wait_for_regex_compiled_pattern(board, mock_communicator):
+    """Test regex matching with compiled patterns."""
+    mock_communicator.add_to_buffer(b"Voltage: 3.3V\n")
+    result = board.wait_for_regex_in_line(re.compile(r"Voltage: \d+\.\dV"), timeout_s=5, log=False)
+    assert result is True
+
+
 @patch("builtins.print")
 def test_wait_for_regex_with_logging(mock_print, board, mock_communicator):
     """Test that logging works when enabled."""
@@ -253,6 +268,25 @@ def test_context_manager_exit_on_exception(mock_debug_probe, mock_communicator):
     except ValueError:
         pass
     assert mock_communicator.closed is True
+    assert mock_debug_probe.closed is True
+
+
+def test_context_manager_exit_closes_probe_even_if_communicator_close_fails(mock_debug_probe):
+    """Test cleanup continues even if one dependency fails to close."""
+
+    class FailingCommunicator(MockCommunicator):
+        def close(self) -> None:
+            self.closed = True
+            raise RuntimeError("close failed")
+
+    communicator = FailingCommunicator()
+    board = Board(debug_probe=mock_debug_probe, communicator=communicator)
+
+    with pytest.raises(RuntimeError, match="close failed"):
+        with board:
+            pass
+
+    assert communicator.closed is True
     assert mock_debug_probe.closed is True
 
 
@@ -319,3 +353,21 @@ def test_wait_for_regex_empty_string(board, mock_communicator):
     # Empty pattern should match
     result = board.wait_for_regex_in_line(r"", timeout_s=1, log=False)
     assert result is True
+
+
+def test_board_allows_missing_debug_probe(mock_communicator):
+    """Test boards can be created without a debug probe."""
+    board = Board(communicator=mock_communicator)
+    board.send(b"PING")
+    assert mock_communicator.sent_data == [b"PING"]
+    with pytest.raises(RuntimeError, match="no debug probe"):
+        board.program("firmware.bin")
+
+
+def test_board_allows_missing_communicator(mock_debug_probe):
+    """Test boards can be created without a communicator."""
+    board = Board(debug_probe=mock_debug_probe)
+    board.reset()
+    assert mock_debug_probe.reset_count == 1
+    with pytest.raises(RuntimeError, match="no communicator"):
+        board.send(b"PING")
