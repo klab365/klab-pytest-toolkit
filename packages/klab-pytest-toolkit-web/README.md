@@ -1,10 +1,10 @@
-# Klab Pytest Toolkit - Web Fixtures
+# Klab Pytest Toolkit - Web
 
 [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-web)](https://pypi.org/project/klab-pytest-toolkit-web/)
 [![Python](https://img.shields.io/pypi/pyversions/klab-pytest-toolkit-web)](https://pypi.org/project/klab-pytest-toolkit-web/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
-Custom pytest fixtures for web testing.
+Reusable web-testing components for pytest.
 The goal is to allow testers to easily test web applications (HTML, JSON, REST API) with reusable components.
 
 At the moment the package provides the following components:
@@ -27,6 +27,31 @@ pip install klab-pytest-toolkit-web
 
 ## Usage
 
+This package is a **library of factory classes**, not a set of auto-registered
+pytest fixtures. The typical pattern is:
+
+1. Import the factory you need.
+2. Instantiate it and create a configured client/validator.
+3. Use it in your test — either directly or wrapped in your own
+   `@pytest.fixture` (recommended, so it is created once and cleaned up via a
+   context manager).
+
+```python
+from klab_pytest_toolkit_web import ApiClientFactory, RestApiClient
+
+
+@pytest.fixture
+def rest_api_client() -> RestApiClient:
+    """Provide a ready-to-use REST API client to tests."""
+    with ApiClientFactory().create_rest_client(
+        base_url="https://api.example.com",
+        headers={"Authorization": "Bearer token"},
+    ) as client:
+        yield client
+```
+
+The sections below describe each factory and its components.
+
 ### JSON Response Validator
 
 **Create the fixture**
@@ -35,7 +60,7 @@ The factory class `ResponseValidatorFactory` is a plain class; use it directly
 (or from within your own fixture).
 
 ```python
-from klab_pytest_toolkit_web import ResponseValidatorFactory
+from klab_pytest_toolkit_web import JsonResponseValidator, ResponseValidatorFactory
 
 @pytest.fixture
 def json_validator_user_schema() -> JsonResponseValidator:
@@ -74,7 +99,7 @@ header information, configure it directly in your fixture (for example from
 environment variables or a testcontainer URL).
 
 ```python
-from klab_pytest_toolkit_web import ApiClientFactory
+from klab_pytest_toolkit_web import ApiClientFactory, RestApiClient
 
 @pytest.fixture(scope="session")
 def httpbin_container():
@@ -144,7 +169,7 @@ Use the factory class `ApiClientFactory` directly.
 You can create a gRPC client fixture as shown below:
 
 ```python
-from klab_pytest_toolkit_web import ApiClientFactory
+from klab_pytest_toolkit_web import ApiClientFactory, GrpcClient
 
 @pytest.fixture
 def grpc_client() -> GrpcClient:
@@ -158,7 +183,7 @@ def grpc_client() -> GrpcClient:
 
 **Functions**
 
-The `GrpcClient` provides gRPC call functionality by dynamically invoking methods defined in the provided proto file. It is imported the that the proto file defines a service with methods like `GetUser`. You will not get any code completion in your IDE since the methods are dynamically resolved at runtime, but you get error handling if the method does not exist.
+The `GrpcClient` provides gRPC call functionality by dynamically invoking methods defined in the provided proto file. It is assumed that the proto file defines a service with methods like `GetUser`. You will not get any code completion in your IDE since the methods are dynamically resolved at runtime, but you do get an error with helpful suggestions if a method does not exist.
 
 ```python
 def test_grpc_get_user(grpc_client: GrpcClient):
@@ -178,10 +203,10 @@ install the browsers first by running `playwright install` in your environment.
 You can create a Playwright web client fixture as shown below:
 
 ```python
-from klab_pytest_toolkit_web import WebClientFactory
+from klab_pytest_toolkit_web import WebClient, WebClientFactory
 
 @pytest.fixture
-def web_client() -> PlaywrightWebClient:
+def web_client() -> WebClient:
     """Fixture to provide a Playwright web client."""
     with WebClientFactory.create_client(client_type="playwright", headless=True) as client:
         yield client
@@ -202,15 +227,15 @@ def test_navigate_and_click(web_client):
 def test_form_submission(web_client):
     """Test form submission."""
     web_client.navigate_to("https://example.com/form")
-    web_client.fill_input("#name", "Test User")
-    web_client.fill_input("#email", "max@muster.com")
+    web_client.fill("#name", "Test User")
+    web_client.fill("#email", "max@muster.com")
     web_client.click("#submit-button")
     assert web_client.get_text("#confirmation") == "Thank you for your submission!"
 
 def test_wait_for_element(web_client):
     """Test waiting for an element to appear."""
     web_client.navigate_to("https://example.com/dynamic")
-    web_client.wait_for_element("#dynamic-content", timeout=10)
+    web_client.wait_for_element("#dynamic-content", timeout=10000)  # milliseconds
     assert web_client.get_text("#dynamic-content") == "Loaded Content"
 ```
 

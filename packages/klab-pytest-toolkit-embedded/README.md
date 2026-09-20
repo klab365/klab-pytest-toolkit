@@ -19,17 +19,17 @@ At the moment the package provides the following components:
   - `TcpCommunicator`: Raw TCP socket communication interface (e.g., LXI instruments).
   - `VisaCommunicator`: VISA resource communication interface (requires the `visa` extra).
 - Logic Analyzers:
-  - `LogicAnalyzer`: Abstract interface for reusable logic analyzer fixtures.
+  - `LogicAnalyzer`: Abstract interface for reusable logic analyzers.
   - `SaleaeLogicAnalyzer`: Saleae Automation API based implementation with named digital channels.
 - GPIO Controllers:
-  - `GpioController`: Abstract interface for reusable GPIO fixtures.
+  - `GpioController`: Abstract interface for reusable GPIO controllers.
   - `FtdiGpioController`: FTDI/pyftdi based GPIO controller with named pins.
 - SPI Controllers:
-  - `SpiController`: Abstract interface for reusable SPI fixtures.
+  - `SpiController`: Abstract interface for reusable SPI controllers.
   - `FtdiSpiController`: FTDI/pyftdi based SPI controller.
   - `SpidevSpiController`: Linux spidev based SPI controller for Raspberry Pi and other Linux benches.
 - I2C Controllers:
-  - `I2cController`: Abstract interface for reusable I2C fixtures.
+  - `I2cController`: Abstract interface for reusable I2C controllers.
   - `FtdiI2cController`: FTDI/pyftdi based I2C controller.
   - `SmbusI2cController`: Linux SMBus/I2C controller for Raspberry Pi and other Linux benches.
 - Measurements:
@@ -76,6 +76,10 @@ pip install 'klab-pytest-toolkit-embedded[visa]'
 At the moment, the `linux` extra is used for Linux SPI and I2C backends (`spidev` and `smbus2`). A Linux GPIO backend is planned separately.
 
 ## Usage
+
+This package is a **library of reusable classes**. Instantiate them directly or
+wrap them in your own `@pytest.fixture`; the package does not auto-register
+fixtures.
 
 ### Measurements
 
@@ -185,7 +189,7 @@ from klab_pytest_toolkit_embedded.debug_probes import EspTool
 from klab_pytest_toolkit_embedded.communicators import SerialCommunicator
 
 @pytest.fixture
-def dut() -> Generator[Board]:
+def dut() -> Generator[Board, None, None]:
     """Fixture to provide a Board instance for Device Under Test (DUT)."""
     PORT = "/dev/ttyUSB0"
     
@@ -299,7 +303,7 @@ You can combine it with a serial communicator in a board fixture:
 
 ```python
 @pytest.fixture
-def dut() -> Generator[Board]:
+def dut() -> Generator[Board, None, None]:
     with Board(
         debug_probe=OpenOcdProbe(
             config_files=("interface/stlink.cfg", "target/stm32f4x.cfg"),

@@ -22,7 +22,7 @@ from klab_pytest_toolkit_embedded.communicators import SerialCommunicator
 
 
 @pytest.fixture
-def dut() -> Generator[Board]:
+def dut() -> Generator[Board, None, None]:
     PORT = "/dev/ttyUSB0"
 
     communicator = SerialCommunicator(port=PORT, baudrate=115200)

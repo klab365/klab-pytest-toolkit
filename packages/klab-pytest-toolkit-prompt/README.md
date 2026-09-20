@@ -4,8 +4,8 @@
 [![Python](https://img.shields.io/pypi/pyversions/klab-pytest-toolkit-prompt)](https://pypi.org/project/klab-pytest-toolkit-prompt/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 
-Custom pytest fixtures for interactive user prompts during test execution using tkinter UI dialogs.
-The goal is to allow testers to interact with the test process, providing confirmations or displaying important information.
+Reusable prompt components for pytest.
+The goal is to allow testers to interact with the test process during execution — for example displaying information or asking for confirmation via tkinter UI dialogs.
 
 At the moment the package provides the following components:
 
@@ -19,6 +19,10 @@ pip install klab-pytest-toolkit-prompt
 
 ## Usage
 
+This package is a **library** that provides the `PromptFactory` class — it does
+*not* auto-register pytest fixtures. Instantiate the factory directly, or wrap
+it in your own fixture as shown below.
+
 ### UI Prompt
 
 **Create the fixture**
@@ -26,7 +30,7 @@ pip install klab-pytest-toolkit-prompt
 Use the factory class `PromptFactory` directly (or from within your own fixture).
 
 ```python
-from klab_pytest_toolkit_prompt import PromptFactory
+from klab_pytest_toolkit_prompt import PromptFactory, PromptInterface
 
 @pytest.fixture
 def ui_prompt() -> PromptInterface:
