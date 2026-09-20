@@ -64,14 +64,14 @@ def _type_and_submit(text: str, delay: float = 1.0) -> None:
 
 
 @pytest.fixture
-def ui_prompt(prompt_factory: PromptFactory) -> PromptInterface:
+def ui_prompt() -> PromptInterface:
     """
     Convenience fixture that provides a ready-to-use UI prompt instance.
 
     Returns:
         PromptInterface: A UI prompt instance ready to use
     """
-    return prompt_factory.create_prompt(prompt_type=PromptFactory.PromptType.UI_PROMPT)
+    return PromptFactory.create_prompt(prompt_type=PromptFactory.PromptType.UI_PROMPT)
 
 
 def test_show_info_displays_and_closes(ui_prompt: PromptInterface):

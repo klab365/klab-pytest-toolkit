@@ -20,6 +20,34 @@ from typing import Iterator
 
 import pytest
 
+from klab_pytest_toolkit_web import (
+    ApiClientFactory,
+    ResponseValidatorFactory,
+    WebClientFactory,
+)
+
+
+@pytest.fixture
+def response_validator_factory() -> ResponseValidatorFactory:
+    """Provide a ``ResponseValidatorFactory`` instance.
+
+    Defined here (in the test suite) rather than auto-registered by the
+    package, because the package is a plain library of factories.
+    """
+    return ResponseValidatorFactory()
+
+
+@pytest.fixture
+def api_client_factory() -> ApiClientFactory:
+    """Provide an ``ApiClientFactory`` instance."""
+    return ApiClientFactory()
+
+
+@pytest.fixture
+def web_client_factory() -> WebClientFactory:
+    """Provide a ``WebClientFactory`` instance."""
+    return WebClientFactory()
+
 
 @pytest.fixture(scope="session")
 def playwright_browser() -> Iterator["object"]:

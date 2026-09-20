@@ -7,14 +7,17 @@
 Custom pytest fixtures for web testing.
 The goal is to allow testers to easily test web applications (HTML, JSON, REST API) with reusable components.
 
-At the moment the package provides the following fixtures:
+At the moment the package provides the following components:
 
-- `response_validator_factory`: Factory for creating JSON response validator instances with custom configurations.
-- `api_client_factory`: Factory for creating different API client instances.
+- `ResponseValidatorFactory`: Factory for creating JSON response validator instances with custom configurations.
+- `ApiClientFactory`: Factory for creating different API client instances.
   - REST API client for making HTTP requests to RESTful services.
   - gRPC client for making gRPC calls to gRPC services.
-- `web_client_factory`: Factory for creating web client instances for browser automation.
+- `WebClientFactory`: Factory for creating web client instances for browser automation.
   - Playwright-based web client for end-to-end testing of web applications.
+
+The factories are plain classes: instantiate them directly (or from within your
+own fixtures) rather than relying on auto-registered pytest fixtures.
 
 ## Installation
 
@@ -28,11 +31,14 @@ pip install klab-pytest-toolkit-web
 
 **Create the fixture**
 
-The factory class `ResponseValidatorFactory` is already provided as a pytest fixture `response_validator_factory`.
+The factory class `ResponseValidatorFactory` is a plain class; use it directly
+(or from within your own fixture).
 
 ```python
+from klab_pytest_toolkit_web import ResponseValidatorFactory
+
 @pytest.fixture
-def json_validator_user_schema(response_validator_factory) -> JsonResponseValidator:
+def json_validator_user_schema() -> JsonResponseValidator:
     """Fixture to provide a JSON response validator for user schema."""
     user_schema = {
         "type": "object",
@@ -42,7 +48,7 @@ def json_validator_user_schema(response_validator_factory) -> JsonResponseValida
         },
         "required": ["id", "name"]
     }
-    return response_validator_factory.create_json_validator(schema=user_schema)
+    return ResponseValidatorFactory().create_json_validator(schema=user_schema)
 ```
 
 **Functions**
@@ -63,11 +69,12 @@ def test_user_api(json_validator_user_schema):
 
 **Create the fixture**
 
-The factory class `ApiClientFactory` is already provided as a pytest fixture `api_client_factory`.
-To pass the url or other header information, you can pass this as environment variables or configure directly in the fixture.
-Below is an example of creating a REST API client fixture from a testcontainer url.
+Use the factory class `ApiClientFactory` directly. To pass the URL or other
+header information, configure it directly in your fixture (for example from
+environment variables or a testcontainer URL).
 
 ```python
+from klab_pytest_toolkit_web import ApiClientFactory
 
 @pytest.fixture(scope="session")
 def httpbin_container():
@@ -82,9 +89,9 @@ def httpbin_container():
         yield base_url
 
 @pytest.fixture
-def rest_api_client(api_client_factory, httpbin_container) -> RestApiClient:
+def rest_api_client(httpbin_container) -> RestApiClient:
     """Fixture to provide a REST API client."""
-    return api_client_factory.create_rest_client(base_url=httpbin_container)
+    return ApiClientFactory().create_rest_client(base_url=httpbin_container)
 ```
 
 **Functions** 
@@ -133,14 +140,16 @@ def test_delete_request(rest_api_client: RestApiClient):
 
 **Create the fixture**
 
-The factory class `ApiClientFactory` is already provided as a pytest fixture `api_client_factory`.
+Use the factory class `ApiClientFactory` directly.
 You can create a gRPC client fixture as shown below:
 
 ```python
+from klab_pytest_toolkit_web import ApiClientFactory
+
 @pytest.fixture
-def grpc_client(api_client_factory) -> GrpcClient:
+def grpc_client() -> GrpcClient:
     """Fixture to provide a gRPC client."""
-    with api_client_factory.create_grpc_client(
+    with ApiClientFactory().create_grpc_client(
         target="localhost:50051",
         proto_file="path/to/your/service.proto"
     ) as client:
@@ -164,15 +173,17 @@ def test_grpc_get_user(grpc_client: GrpcClient):
 
 **Create the fixture**
 
-The factory class `WebClientFactory` is already provided as a pytest fixture `web_client_factory`.
-For playwright, you might install the browsers first by running `playwright install` in your environment.
+Use the factory class `WebClientFactory` directly. For playwright, you might
+install the browsers first by running `playwright install` in your environment.
 You can create a Playwright web client fixture as shown below:
 
 ```python
+from klab_pytest_toolkit_web import WebClientFactory
+
 @pytest.fixture
-def web_client(web_client_factory) -> PlaywrightWebClient:
+def web_client() -> PlaywrightWebClient:
     """Fixture to provide a Playwright web client."""
-     with web_client_factory.create_client(client_type="playwright", headless=True) as client:
+    with WebClientFactory.create_client(client_type="playwright", headless=True) as client:
         yield client
 ```
 

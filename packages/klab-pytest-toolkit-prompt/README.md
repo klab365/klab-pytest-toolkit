@@ -7,9 +7,9 @@
 Custom pytest fixtures for interactive user prompts during test execution using tkinter UI dialogs.
 The goal is to allow testers to interact with the test process, providing confirmations or displaying important information.
 
-At the moment the package provides the following fixtures:
+At the moment the package provides the following components:
 
-- `prompt_factory`: Factory for creating multiple prompt instances. Use the factory to create prompt fixtures.
+- `PromptFactory`: Factory for creating prompt interface instances. Use it directly (or from within your own fixtures).
 
 ## Installation
 
@@ -23,15 +23,15 @@ pip install klab-pytest-toolkit-prompt
 
 **Create the fixture**
 
-The factory class `PromptFactory` can be used to create multiple prompt instances.
-This is already provided as a pytest fixture `prompt_factory`.
+Use the factory class `PromptFactory` directly (or from within your own fixture).
 
 ```python
+from klab_pytest_toolkit_prompt import PromptFactory
 
 @pytest.fixture
-def ui_prompt(prompt_factory) -> PromptInterface:
+def ui_prompt() -> PromptInterface:
     """Fixture to provide a UI prompt interface for user interaction during tests."""
-    return prompt_factory.create_prompt(prompt_type=PromptFactory.PromptType.UI_PROMPT)
+    return PromptFactory.create_prompt(prompt_type=PromptFactory.PromptType.UI_PROMPT)
 ```
 
 **Functions**
@@ -79,7 +79,7 @@ def test_with_timeout(ui_prompt):
 
 ## Examples
 
-See the `tests` directory for example test cases demonstrating the usage of the prompt fixtures.
+See the `tests` directory for example test cases demonstrating the usage of the prompt components.
 
 ## Links
 
