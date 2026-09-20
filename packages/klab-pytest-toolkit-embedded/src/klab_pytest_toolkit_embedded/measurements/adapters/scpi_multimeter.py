@@ -1,8 +1,6 @@
 """SCPI digital multimeter adapter."""
 
-import re
-
-from klab_pytest_toolkit_embedded.communicators import CommunicatorInterface
+from klab_pytest_toolkit_embedded.measurements.adapters.scpi import ScpiInstrument
 from klab_pytest_toolkit_embedded.measurements.values import (
     Current,
     CurrentUnit,
@@ -16,26 +14,13 @@ from klab_pytest_toolkit_embedded.measurements.values import (
     VoltageUnit,
 )
 
-_NUMBER = re.compile(r"[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
 
-
-class ScpiMultimeter:
+class ScpiMultimeter(ScpiInstrument):
     """SCPI digital multimeter implementing the measurement instrument protocol.
 
     Measurements are returned in SI base units (volts, amperes, ohms, hertz, and
     degrees Celsius). Use the DTO ``to()`` method to convert to a preferred unit.
     """
-
-    def __init__(self, communicator: CommunicatorInterface) -> None:
-        self._communicator = communicator
-
-    def identify(self) -> str:
-        """Return the instrument identification string (``*IDN?``)."""
-        return self._query("*IDN?")
-
-    def reset(self) -> None:
-        """Reset the instrument to its default state (``*RST``)."""
-        self._write("*RST")
 
     def measure_voltage(self) -> Voltage:
         """Measure DC voltage."""
@@ -76,27 +61,3 @@ class ScpiMultimeter:
     def measure_temperature(self) -> Temperature:
         """Measure temperature."""
         return Temperature(self._query_float("MEASure:TEMPerature?"), TemperatureUnit.CELSIUS)
-
-    def close(self) -> None:
-        """Close the underlying communicator."""
-        self._communicator.close()
-
-    def _write(self, command: str) -> None:
-        self._communicator.send(f"{command}\n".encode())
-
-    def _query(self, command: str) -> str:
-        self._write(command)
-        return self._communicator.read_line().decode().strip()
-
-    def _query_float(self, command: str) -> float:
-        raw = self._query(command)
-        match = _NUMBER.search(raw)
-        if match is None:
-            raise ValueError(f"Unexpected SCPI response for {command!r}: {raw!r}")
-        return float(match.group())
-
-    def __enter__(self) -> "ScpiMultimeter":
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback) -> None:
-        self.close()

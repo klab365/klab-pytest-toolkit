@@ -16,6 +16,8 @@ At the moment the package provides the following components:
   - `ProbeRsProbe`: Generic debug probe implementation using the `probe-rs` CLI.
 - Communicators:
   - `SerialCommunicator`: Serial port communication interface for UART/USB connections.
+  - `TcpCommunicator`: Raw TCP socket communication interface (e.g., LXI instruments).
+  - `VisaCommunicator`: VISA resource communication interface (requires the `visa` extra).
 - Logic Analyzers:
   - `LogicAnalyzer`: Abstract interface for reusable logic analyzer fixtures.
   - `SaleaeLogicAnalyzer`: Saleae Automation API based implementation with named digital channels.
@@ -33,6 +35,9 @@ At the moment the package provides the following components:
 - Measurements:
   - `MeasurementInstrument`: Interface for current, voltage, resistance, and temperature
     measurements returning unit-aware DTOs (`Current`, `Voltage`, `Resistance`, and `Temperature`).
+  - `PowerSupply`: Interface for programmable power supplies.
+  - `ScpiMultimeter`: SCPI-based digital multimeter.
+  - `ScpiPowerSupply`: SCPI-based programmable power supply.
 
 Concrete hardware implementations live in each component's `adapters/` package. They remain
 re-exported from the parent package, so public imports such as
@@ -60,6 +65,12 @@ Install Linux bench bus support with the optional extra:
 
 ```bash
 pip install 'klab-pytest-toolkit-embedded[linux]'
+```
+
+Install VISA support with the optional extra (pulls in `pyvisa`):
+
+```bash
+pip install 'klab-pytest-toolkit-embedded[visa]'
 ```
 
 At the moment, the `linux` extra is used for Linux SPI and I2C backends (`spidev` and `smbus2`). A Linux GPIO backend is planned separately.
@@ -116,6 +127,46 @@ def test_supply_voltage() -> None:
     with ScpiMultimeter(communicator) as meter:
         voltage = meter.measure_voltage()
         assert voltage.value > 3.0
+```
+
+### SCPI Power Supply
+
+`ScpiPowerSupply` controls a programmable power supply over SCPI. The output is disabled
+automatically when leaving the context manager, even if a test fails.
+
+```python
+from klab_pytest_toolkit_embedded.communicators import TcpCommunicator
+from klab_pytest_toolkit_embedded.measurements import (
+    Current,
+    CurrentUnit,
+    ScpiPowerSupply,
+    Voltage,
+    VoltageUnit,
+)
+
+
+def test_powered_dut() -> None:
+    communicator = TcpCommunicator(host="10.0.0.6", port=5025)
+    with ScpiPowerSupply(communicator) as supply:
+        supply.set_voltage(Voltage(3.3, VoltageUnit.VOLT))
+        supply.set_current_limit(Current(500, CurrentUnit.MILLIAMPERE))
+        supply.enable_output()
+
+        actual = supply.measure_voltage()
+        assert actual.value == pytest.approx(3.3)
+```
+
+VISA example (requires the `visa` extra):
+
+```python
+from klab_pytest_toolkit_embedded.communicators import VisaCommunicator
+from klab_pytest_toolkit_embedded.measurements import ScpiMultimeter
+
+
+def test_identify_visa_instrument() -> None:
+    communicator = VisaCommunicator("USB0::0x1234::0x5678::MY59001234::INSTR")
+    with ScpiMultimeter(communicator) as meter:
+        assert meter.identify()
 ```
 
 

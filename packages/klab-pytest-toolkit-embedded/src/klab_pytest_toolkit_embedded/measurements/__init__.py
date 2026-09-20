@@ -1,7 +1,10 @@
 """Unit-aware measurement instruments and values for HIL test fixtures."""
 
-from klab_pytest_toolkit_embedded.measurements.adapters import ScpiMultimeter
-from klab_pytest_toolkit_embedded.measurements.interface import MeasurementInstrument
+from klab_pytest_toolkit_embedded.measurements.adapters import ScpiMultimeter, ScpiPowerSupply
+from klab_pytest_toolkit_embedded.measurements.interface import (
+    MeasurementInstrument,
+    PowerSupply,
+)
 from klab_pytest_toolkit_embedded.measurements.values import (
     Current,
     CurrentUnit,
@@ -21,9 +24,11 @@ __all__ = [
     "Frequency",
     "FrequencyUnit",
     "MeasurementInstrument",
+    "PowerSupply",
     "Resistance",
     "ResistanceUnit",
     "ScpiMultimeter",
+    "ScpiPowerSupply",
     "Temperature",
     "TemperatureUnit",
     "Voltage",

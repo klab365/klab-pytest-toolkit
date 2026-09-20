@@ -28,3 +28,31 @@ class MeasurementInstrument(Protocol):
     def measure_temperature(self) -> Temperature:
         """Return the measured temperature."""
         ...
+
+
+class PowerSupply(Protocol):
+    """A programmable power supply."""
+
+    def set_voltage(self, value: Voltage) -> None:
+        """Set the output voltage."""
+        ...
+
+    def set_current_limit(self, value: Current) -> None:
+        """Set the output current limit."""
+        ...
+
+    def enable_output(self) -> None:
+        """Enable the output."""
+        ...
+
+    def disable_output(self) -> None:
+        """Disable the output."""
+        ...
+
+    def measure_voltage(self) -> Voltage:
+        """Measure the actual output voltage."""
+        ...
+
+    def measure_current(self) -> Current:
+        """Measure the actual output current."""
+        ...
