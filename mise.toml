@@ -114,7 +114,16 @@ usage = 'arg "[args]" help="pytest arguments" var=#true'
 run = """
 #!/usr/bin/env bash
 set -euo pipefail
-xvfb-run --auto-servernum uv run pytest \
+if command -v xvfb-run >/dev/null 2>&1; then
+    exec xvfb-run --auto-servernum uv run pytest \
+        --junitxml=pytest.xml \
+        --cov-report=term-missing:skip-covered \
+        --cov-report=xml:coverage.xml \
+        --cov=packages \
+        ${usage_args:-} \
+        packages
+fi
+exec uv run pytest \
     --junitxml=pytest.xml \
     --cov-report=term-missing:skip-covered \
     --cov-report=xml:coverage.xml \

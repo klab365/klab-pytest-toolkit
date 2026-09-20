@@ -36,6 +36,14 @@ class TemperatureUnit(StrEnum):
     KELVIN = "K"
 
 
+class FrequencyUnit(StrEnum):
+    """Supported frequency units."""
+
+    HERTZ = "Hz"
+    KILOHERTZ = "kHz"
+    MEGAHERTZ = "MHz"
+
+
 def _convert_linear(
     value: float, from_unit: StrEnum, to_unit: StrEnum, factors: Mapping[StrEnum, float]
 ) -> float:
@@ -125,3 +133,20 @@ class Temperature:
                 return value * 9.0 / 5.0 + 32.0
             case TemperatureUnit.KELVIN:
                 return value + 273.15
+
+
+@dataclass(frozen=True, slots=True)
+class Frequency:
+    """A frequency measurement."""
+
+    value: float
+    unit: FrequencyUnit
+
+    def to(self, unit: FrequencyUnit) -> "Frequency":
+        """Convert this measurement to ``unit``."""
+        factors: Mapping[StrEnum, float] = {
+            FrequencyUnit.HERTZ: 1.0,
+            FrequencyUnit.KILOHERTZ: 1e3,
+            FrequencyUnit.MEGAHERTZ: 1e6,
+        }
+        return Frequency(_convert_linear(self.value, self.unit, unit, factors), unit)

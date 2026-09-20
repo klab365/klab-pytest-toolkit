@@ -83,6 +83,41 @@ def test_sleep_current(meter: MeasurementInstrument) -> None:
     assert current.value < 100
 ```
 
+### SCPI Measurement Instruments
+
+`ScpiMultimeter` talks to SCPI instruments such as Keysight, Rigol, or Keithley DMMs over any
+`CommunicatorInterface`. `TcpCommunicator` connects over a raw TCP socket (LXI devices);
+`SerialCommunicator` covers RS-232/UART instruments.
+
+```python
+from klab_pytest_toolkit_embedded.communicators import TcpCommunicator
+from klab_pytest_toolkit_embedded.measurements import CurrentUnit, ScpiMultimeter
+
+
+def test_sleep_current() -> None:
+    communicator = TcpCommunicator(host="10.0.0.5", port=5025)
+    with ScpiMultimeter(communicator) as meter:
+        current = meter.measure_current().to(CurrentUnit.MICROAMPERE)
+        assert current.value < 100
+```
+
+`ScpiMultimeter` returns values in SI base units (volts, amperes, ohms, hertz, and degrees
+Celsius).
+
+Serial example:
+
+```python
+from klab_pytest_toolkit_embedded.communicators import SerialCommunicator
+from klab_pytest_toolkit_embedded.measurements import ScpiMultimeter
+
+
+def test_supply_voltage() -> None:
+    communicator = SerialCommunicator(port="/dev/ttyUSB0", baudrate=9600)
+    with ScpiMultimeter(communicator) as meter:
+        voltage = meter.measure_voltage()
+        assert voltage.value > 3.0
+```
+
 
 ### Board Class
 

@@ -1,9 +1,16 @@
+import shutil
 import subprocess
 import threading
 import time
 
-from klab_pytest_toolkit_prompt.core import PromptFactory, PromptInterface
 import pytest
+
+from klab_pytest_toolkit_prompt.core import PromptFactory, PromptInterface
+
+pytestmark = pytest.mark.skipif(
+    shutil.which("xdotool") is None,
+    reason="Requires xdotool for X11 GUI automation (Linux only)",
+)
 
 
 def _click_dialog_button(button_name: str, delay: float = 1.0) -> None:
