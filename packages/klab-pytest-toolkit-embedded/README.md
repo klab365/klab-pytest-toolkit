@@ -30,6 +30,13 @@ At the moment the package provides the following components:
   - `I2cController`: Abstract interface for reusable I2C fixtures.
   - `FtdiI2cController`: FTDI/pyftdi based I2C controller.
   - `SmbusI2cController`: Linux SMBus/I2C controller for Raspberry Pi and other Linux benches.
+- Measurements:
+  - `MeasurementInstrument`: Interface for current, voltage, resistance, and temperature
+    measurements returning unit-aware DTOs (`Current`, `Voltage`, `Resistance`, and `Temperature`).
+
+Concrete hardware implementations live in each component's `adapters/` package. They remain
+re-exported from the parent package, so public imports such as
+`from klab_pytest_toolkit_embedded.debug_probes import OpenOcdProbe` stay unchanged.
 
 ## Installation
 
@@ -58,6 +65,24 @@ pip install 'klab-pytest-toolkit-embedded[linux]'
 At the moment, the `linux` extra is used for Linux SPI and I2C backends (`spidev` and `smbus2`). A Linux GPIO backend is planned separately.
 
 ## Usage
+
+### Measurements
+
+Measurement implementations return immutable DTOs with an explicit value and unit. Convert a
+value with `to()` before comparison.
+
+```python
+from klab_pytest_toolkit_embedded.measurements import (
+    CurrentUnit,
+    MeasurementInstrument,
+)
+
+
+def test_sleep_current(meter: MeasurementInstrument) -> None:
+    current = meter.measure_current().to(CurrentUnit.MICROAMPERE)
+    assert current.value < 100
+```
+
 
 ### Board Class
 

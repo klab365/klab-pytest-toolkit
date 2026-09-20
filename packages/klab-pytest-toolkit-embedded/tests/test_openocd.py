@@ -13,7 +13,9 @@ def test_program_uses_openocd_with_required_configs() -> None:
         config_files=("interface/stlink.cfg", "target/stm32f4x.cfg"),
     )
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.openocd.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.openocd.subprocess.run"
+    ) as mock_run:
         probe.program("build/firmware.elf")
 
     mock_run.assert_called_once_with(
@@ -40,7 +42,9 @@ def test_program_supports_search_dirs_init_commands_extra_args_and_flash_address
         flash_address="0x08000000",
     )
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.openocd.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.openocd.subprocess.run"
+    ) as mock_run:
         probe.program("build/firmware.bin")
 
     mock_run.assert_called_once_with(
@@ -67,7 +71,9 @@ def test_reset_uses_openocd_reset_run() -> None:
         config_files=("interface/stlink.cfg", "target/stm32f4x.cfg"),
     )
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.openocd.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.openocd.subprocess.run"
+    ) as mock_run:
         probe.reset()
 
     mock_run.assert_called_once_with(
@@ -94,7 +100,7 @@ def test_openocd_errors_are_propagated() -> None:
     )
 
     with patch(
-        "klab_pytest_toolkit_embedded.debug_probes.openocd.subprocess.run",
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.openocd.subprocess.run",
         side_effect=CalledProcessError(1, ["openocd"]),
     ):
         with pytest.raises(CalledProcessError):
@@ -112,7 +118,9 @@ def test_close_is_a_no_op() -> None:
 def test_openocd_accepts_single_board_config() -> None:
     probe = OpenOcdProbe(config_files=("board/st_nucleo_f4.cfg",))
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.openocd.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.openocd.subprocess.run"
+    ) as mock_run:
         probe.reset()
 
     mock_run.assert_called_once_with(

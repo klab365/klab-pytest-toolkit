@@ -11,7 +11,9 @@ from klab_pytest_toolkit_embedded.debug_probes import ProbeRsProbe
 def test_program_uses_probe_rs_with_required_chip() -> None:
     probe = ProbeRsProbe(chip="STM32F411CEUx")
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.probers.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.probers.subprocess.run"
+    ) as mock_run:
         probe.program("build/firmware.elf")
 
     mock_run.assert_called_once_with(
@@ -31,7 +33,9 @@ def test_program_supports_optional_probe_parameters() -> None:
         extra_args=("--log", "debug"),
     )
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.probers.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.probers.subprocess.run"
+    ) as mock_run:
         probe.program("build/firmware.bin")
 
     mock_run.assert_called_once_with(
@@ -58,7 +62,9 @@ def test_program_supports_optional_probe_parameters() -> None:
 def test_reset_uses_probe_rs_reset() -> None:
     probe = ProbeRsProbe(chip="STM32F411CEUx")
 
-    with patch("klab_pytest_toolkit_embedded.debug_probes.probers.subprocess.run") as mock_run:
+    with patch(
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.probers.subprocess.run"
+    ) as mock_run:
         probe.reset()
 
     mock_run.assert_called_once_with(
@@ -71,7 +77,7 @@ def test_probe_rs_errors_are_propagated() -> None:
     probe = ProbeRsProbe(chip="STM32F411CEUx")
 
     with patch(
-        "klab_pytest_toolkit_embedded.debug_probes.probers.subprocess.run",
+        "klab_pytest_toolkit_embedded.debug_probes.adapters.probers.subprocess.run",
         side_effect=CalledProcessError(1, ["probe-rs"]),
     ):
         with pytest.raises(CalledProcessError):
