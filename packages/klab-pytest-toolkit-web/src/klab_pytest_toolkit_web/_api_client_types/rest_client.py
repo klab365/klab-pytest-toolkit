@@ -8,6 +8,7 @@ class RestApiClient(ApiClient):
         self,
         base_url: str,
         headers: Optional[Dict[str, str]] = None,
+        timeout: float = 30.0,
     ):
         """
         Initialize REST API client.
@@ -15,9 +16,12 @@ class RestApiClient(ApiClient):
         Args:
             base_url: Base URL for API requests
             headers: Optional default headers for all requests
+            timeout: Default timeout in seconds for all requests. Can be
+                overridden per request via the ``timeout`` argument.
         """
         self.base_url = base_url
         self.headers = headers or {}
+        self.timeout = timeout
         self.session = requests.Session()
 
     def get(
@@ -42,7 +46,7 @@ class RestApiClient(ApiClient):
             url,
             params=params,
             headers=self.headers,
-            timeout=timeout,
+            timeout=timeout if timeout is not None else self.timeout,
         )
 
     def post(
@@ -67,7 +71,7 @@ class RestApiClient(ApiClient):
             url,
             json=payload,
             headers=self.headers,
-            timeout=timeout,
+            timeout=timeout if timeout is not None else self.timeout,
         )
 
     def put(
@@ -92,7 +96,7 @@ class RestApiClient(ApiClient):
             url,
             json=payload,
             headers=self.headers,
-            timeout=timeout,
+            timeout=timeout if timeout is not None else self.timeout,
         )
 
     def patch(
@@ -117,7 +121,7 @@ class RestApiClient(ApiClient):
             url,
             json=payload,
             headers=self.headers,
-            timeout=timeout,
+            timeout=timeout if timeout is not None else self.timeout,
         )
 
     def delete(
@@ -139,7 +143,7 @@ class RestApiClient(ApiClient):
         return self.session.delete(
             url,
             headers=self.headers,
-            timeout=timeout,
+            timeout=timeout if timeout is not None else self.timeout,
         )
 
     def close(self) -> None:

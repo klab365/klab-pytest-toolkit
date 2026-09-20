@@ -9,6 +9,7 @@ class ApiClientFactory:
         self,
         base_url: str,
         headers: Optional[Dict[str, str]] = None,
+        timeout: float = 30.0,
     ) -> RestApiClient:
         """
         Create a REST API client instance.
@@ -16,6 +17,7 @@ class ApiClientFactory:
         Args:
             base_url: Base URL for API requests
             headers: Optional default headers
+            timeout: Default timeout in seconds for all requests
 
         Returns:
             RestApiClient instance
@@ -30,7 +32,7 @@ class ApiClientFactory:
             >>> # Set timeout per request when needed
             >>> response = client.get("/slow-endpoint", timeout=120)
         """
-        return RestApiClient(base_url=base_url, headers=headers)
+        return RestApiClient(base_url=base_url, headers=headers, timeout=timeout)
 
     def create_grpc_client(
         self,
@@ -54,7 +56,8 @@ class ApiClientFactory:
             GrpcClient instance with dynamically bound methods
 
         Raises:
-            ValueError: If neither proto_file nor use_reflection is provided
+            FileNotFoundError: If the proto file does not exist.
+            RuntimeError: If the proto file cannot be compiled.
 
         Example:
             >>> # Using proto file

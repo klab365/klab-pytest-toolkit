@@ -9,14 +9,13 @@ class JsonResponseValidator:
     def __init__(
         self,
         schema: Optional[Dict[str, Any]] = None,
-        raise_on_error: Optional[bool] = None,
+        raise_on_error: bool = False,
     ):
         """
         Initialize the JSON response validator.
 
         Args:
             schema: JSON schema to validate against (can be set later)
-            strict_mode: If True, disallow additional properties not in schema
             raise_on_error: If True, raise ValidationError instead of returning False
         """
         self.schema = schema
@@ -69,14 +68,13 @@ class ResponseValidatorFactory:
     def create_json_validator(
         self,
         schema: Optional[Dict[str, Any]] = None,
-        raise_on_error: Optional[bool] = None,
+        raise_on_error: bool = False,
     ) -> JsonResponseValidator:
         """
         Create a new JsonResponseValidator instance.
 
         Args:
             schema: JSON schema for the validator
-            strict_mode: Override default strict mode
             raise_on_error: Override default error handling
 
         Returns:

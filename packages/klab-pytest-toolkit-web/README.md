@@ -91,6 +91,10 @@ def rest_api_client(api_client_factory, httpbin_container) -> RestApiClient:
 
 The REST API client provides functions to make HTTP requests. These are some examples:
 
+Each request method accepts an optional per-request ``timeout`` (in seconds).
+The client also has a default timeout of 30 seconds that applies when no
+per-request timeout is given, so a hanging endpoint cannot block a test forever.
+
 ```python
 def test_get_request(rest_api_client: RestApiClient):
     """Test basic GET request with query parameters."""
@@ -136,10 +140,11 @@ You can create a gRPC client fixture as shown below:
 @pytest.fixture
 def grpc_client(api_client_factory) -> GrpcClient:
     """Fixture to provide a gRPC client."""
-    return api_client_factory.create_grpc_client(
+    with api_client_factory.create_grpc_client(
         target="localhost:50051",
         proto_file="path/to/your/service.proto"
-    )
+    ) as client:
+        yield client
 ```
 
 **Functions**

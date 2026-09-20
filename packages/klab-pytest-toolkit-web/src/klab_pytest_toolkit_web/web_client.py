@@ -1,4 +1,5 @@
 import abc
+import enum
 from typing import Any, Optional
 
 
@@ -392,7 +393,7 @@ class PlayWrightWebClient(WebClient):
 class WebClientFactory:
     """Factory to create web client instances."""
 
-    class WebClientType:
+    class WebClientType(str, enum.Enum):
         PLAYWRIGHT = "playwright"
 
     @staticmethod
