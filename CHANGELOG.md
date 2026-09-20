@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.3.0
+
+### Added
+
+#### klab-pytest-toolkit-embedded
+- Added unit-aware measurement value objects and unit conversions for current, voltage, resistance,
+  frequency, and temperature.
+- Added `MeasurementInstrument` and `PowerSupply` protocols for HIL measurement fixtures.
+- Added SCPI instrument adapters: `ScpiMultimeter` for DC/AC voltage and current, resistance,
+  frequency, and temperature measurements; and `ScpiPowerSupply` for output control and readings.
+- Added `TcpCommunicator` for raw TCP/LXI device communication and `VisaCommunicator` for bench
+  instruments, with a `visa` optional dependency extra that installs `pyvisa`.
+- Added line-oriented reads to the communicator interface and serial implementation.
+
+#### klab-pytest-toolkit-web
+- Added a configurable 30-second default timeout for REST clients, with optional per-request
+  overrides.
+
+### Changed
+
+#### klab-pytest-toolkit-embedded
+- Reorganized concrete debug-probe, logic-analyzer, GPIO, SPI, I2C, and communicator implementations
+  into `adapters` packages while preserving their parent-package public imports.
+- Updated embedded documentation with direct-use guidance and TCP, VISA, SCPI multimeter, and power
+  supply examples.
+
+#### klab-pytest-toolkit-web
+- Made dynamic gRPC proto-module loading collision-safe for multiple clients or matching user module
+  names, and report missing request classes with warnings.
+- Changed the Playwright web-client type to a string enum and made JSON-validator error handling
+  explicitly default to returning `False`.
+- Updated documentation to describe direct factory usage, REST timeout behavior, and current web-client
+  APIs.
+
+#### klab-pytest-toolkit-prompt
+- Updated documentation to describe direct `PromptFactory` usage.
+
+### Removed
+
+#### klab-pytest-toolkit-embedded
+- Removed automatic pytest-plugin registration and its fixtures; use the library classes directly or
+  wrap them in project-owned fixtures.
+
+#### klab-pytest-toolkit-prompt
+- Removed automatic pytest-plugin registration and the `prompt_factory` fixture; use `PromptFactory`
+  directly or wrap it in a project-owned fixture.
+
+#### klab-pytest-toolkit-web
+- Removed automatic pytest-plugin registration and the `response_validator_factory`,
+  `api_client_factory`, and `web_client_factory` fixtures; use the factory classes directly or wrap
+  them in project-owned fixtures.
+
+### Development
+- Updated the root documentation to clarify package roles and the direct factory pattern.
+- Added contributor guidance in `AGENTS.md` and made the test task fall back to pytest directly when
+  `xvfb-run` is unavailable.
+
 ## 1.2.0
 
 ### Added
