@@ -1,6 +1,9 @@
 """Tests for WebClient using testcontainers with nginx."""
 
 import os
+import time
+import urllib.error
+import urllib.request
 
 import pytest
 from testcontainers.core.container import DockerContainer
@@ -74,6 +77,21 @@ ABOUT_HTML_CONTENT = """
 """
 
 
+def _wait_for_http(url: str, timeout: float = 30.0) -> None:
+    """Poll ``url`` until nginx responds with HTTP 200."""
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            with urllib.request.urlopen(url, timeout=1) as response:
+                if response.status == 200:
+                    return
+        except (urllib.error.URLError, OSError):
+            pass
+        time.sleep(0.5)
+    raise RuntimeError(f"nginx did not become ready at {url}")
+
+
 @pytest.fixture(scope="session")
 def nginx_container():
     """Fixture to provide an nginx container serving test HTML files."""
@@ -100,6 +118,7 @@ def nginx_container():
 
         port = nginx.get_exposed_port(80)
         base_url = f"http://localhost:{port}"
+        _wait_for_http(f"{base_url}/index.html")
         yield base_url
 
 

@@ -13,14 +13,39 @@ The toolkit includes the following components:
 | Package                                                                                                              | Description                                                                            | PyPI                                                                                  |
 | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | [`klab-pytest-toolkit-decorators`](./packages/klab-pytest-toolkit-decorators)                                        | Custom pytest decorators for marking and annotating tests                              | [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-decorators)](https://pypi.org/project/klab-pytest-toolkit-decorators/) |
-| [`klab-pytest-toolkit-embedded`](./packages/klab-pytest-toolkit-embedded)                                            | Pytest fixtures for embedded systems testing                                           | [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-embedded)](https://pypi.org/project/klab-pytest-toolkit-embedded/)     |
+| [`klab-pytest-toolkit-embedded`](./packages/klab-pytest-toolkit-embedded)                                            | Reusable components for embedded (HIL) systems testing                              | [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-embedded)](https://pypi.org/project/klab-pytest-toolkit-embedded/)     |
 | [`klab-pytest-toolkit-prompt`](./packages/klab-pytest-toolkit-prompt)                                                | Interactive user prompts during test execution using tkinter UI dialogs                | [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-prompt)](https://pypi.org/project/klab-pytest-toolkit-prompt/)         |
-| [`klab-pytest-toolkit-web`](./packages/klab-pytest-toolkit-web)                                                      | Web testing fixtures with JSON validation, REST API client, and Playwright integration | [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-web)](https://pypi.org/project/klab-pytest-toolkit-web/)               |
+| [`klab-pytest-toolkit-web`](./packages/klab-pytest-toolkit-web)                                                      | Reusable web-testing components: JSON validation, REST/gRPC clients, and Playwright   | [![PyPI](https://img.shields.io/pypi/v/klab-pytest-toolkit-web)](https://pypi.org/project/klab-pytest-toolkit-web/)               |
 
 ### Architecture
 
 Each package is designed for a specific type of application testing.
-When a package exposes fixtures, they are provided with factories so different variants can be created easily.
+
+Except for `klab-pytest-toolkit-decorators` (which registers pytest marks and
+decorators), the packages are **libraries of factory classes**. They do *not*
+auto-register pytest fixtures; instead you import a factory, instantiate it, and
+create the component you need — either directly in a test or inside your own
+`@pytest.fixture`.
+
+The typical pattern is:
+
+```python
+from klab_pytest_toolkit_web import ApiClientFactory, RestApiClient
+
+
+@pytest.fixture
+def rest_api_client() -> RestApiClient:
+    """Provide a configured REST API client to tests."""
+    with ApiClientFactory().create_rest_client(
+        base_url="https://api.example.com",
+        headers={"Authorization": "Bearer token"},
+    ) as client:
+        yield client
+```
+
+Factories keep creation simple and consistent: each package exposes one entry
+point from which you create different variants (e.g. REST vs. gRPC clients, or
+FTDI vs. SMBus I2C controllers).
 
 ## Development
 

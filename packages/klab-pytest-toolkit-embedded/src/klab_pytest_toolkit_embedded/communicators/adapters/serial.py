@@ -73,6 +73,20 @@ class SerialCommunicator(CommunicatorInterface):
 
         return self._serial.read(num_bytes)
 
+    def read_line(self) -> bytes:
+        """Read a line from the serial port (up to and including a newline).
+
+        Returns:
+            The received line as bytes
+
+        Raises:
+            RuntimeError: If serial port is not open
+        """
+        if not self._serial or not self._serial.is_open:
+            raise RuntimeError("Serial port is not open")
+
+        return self._serial.readline()
+
     def close(self) -> None:
         """Close the serial connection."""
         if self._serial and self._serial.is_open:

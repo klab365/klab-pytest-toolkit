@@ -1,9 +1,16 @@
+import shutil
 import subprocess
 import threading
 import time
 
-from klab_pytest_toolkit_prompt.core import PromptFactory, PromptInterface
 import pytest
+
+from klab_pytest_toolkit_prompt.core import PromptFactory, PromptInterface
+
+pytestmark = pytest.mark.skipif(
+    shutil.which("xdotool") is None,
+    reason="Requires xdotool for X11 GUI automation (Linux only)",
+)
 
 
 def _click_dialog_button(button_name: str, delay: float = 1.0) -> None:
@@ -57,14 +64,14 @@ def _type_and_submit(text: str, delay: float = 1.0) -> None:
 
 
 @pytest.fixture
-def ui_prompt(prompt_factory: PromptFactory) -> PromptInterface:
+def ui_prompt() -> PromptInterface:
     """
     Convenience fixture that provides a ready-to-use UI prompt instance.
 
     Returns:
         PromptInterface: A UI prompt instance ready to use
     """
-    return prompt_factory.create_prompt(prompt_type=PromptFactory.PromptType.UI_PROMPT)
+    return PromptFactory.create_prompt(prompt_type=PromptFactory.PromptType.UI_PROMPT)
 
 
 def test_show_info_displays_and_closes(ui_prompt: PromptInterface):

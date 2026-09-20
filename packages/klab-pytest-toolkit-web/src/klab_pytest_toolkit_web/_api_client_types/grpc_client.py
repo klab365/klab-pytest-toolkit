@@ -2,10 +2,18 @@ import grpc
 from typing import Optional, Any, List, Tuple, Callable, Dict
 from pathlib import Path
 import importlib.util
-import tempfile
+import itertools
 import sys
+import tempfile
+import warnings
 from grpc_tools import protoc
 from klab_pytest_toolkit_web._api_client_types import ApiClient
+
+
+# Counter used to give each client's generated proto modules a unique name so
+# that loading the same ``.proto`` file twice (or loading a proto whose module
+# name clashes with user code) never overwrites modules in ``sys.modules``.
+_MODULE_COUNTER = itertools.count()
 
 
 class GrpcClient(ApiClient):
@@ -35,6 +43,7 @@ class GrpcClient(ApiClient):
     ):
         self.target = target
         self.metadata = metadata or []
+        self._module_id = next(_MODULE_COUNTER)
         self._stubs: Dict[str, Any] = {}
         self._methods: Dict[str, Any] = {}
         self._request_classes: Dict[str, Any] = {}
@@ -74,13 +83,17 @@ class GrpcClient(ApiClient):
         if result != 0:
             raise RuntimeError(f"Proto compilation failed with exit code: {result}")
 
-        # Load generated modules
+        # Load generated modules under unique names so that multiple clients
+        # (or user code) loading a proto with the same stem don't clobber each
+        # other in ``sys.modules``.
         proto_name = proto_path.stem
+        unique_pb2 = f"{proto_name}_pb2_{self._module_id}"
+        unique_grpc = f"{proto_name}_pb2_grpc_{self._module_id}"
         pb2_file = temp_path / f"{proto_name}_pb2.py"
         grpc_file = temp_path / f"{proto_name}_pb2_grpc.py"
 
-        spec_pb2 = importlib.util.spec_from_file_location(f"{proto_name}_pb2", pb2_file)
-        spec_grpc = importlib.util.spec_from_file_location(f"{proto_name}_pb2_grpc", grpc_file)
+        spec_pb2 = importlib.util.spec_from_file_location(unique_pb2, pb2_file)
+        spec_grpc = importlib.util.spec_from_file_location(unique_grpc, grpc_file)
 
         if not spec_pb2 or not spec_grpc:
             raise RuntimeError("Failed to load generated proto modules")
@@ -88,14 +101,21 @@ class GrpcClient(ApiClient):
         pb2_module = importlib.util.module_from_spec(spec_pb2)
         grpc_module = importlib.util.module_from_spec(spec_grpc)
 
-        sys.modules[f"{proto_name}_pb2"] = pb2_module
-        sys.modules[f"{proto_name}_pb2_grpc"] = grpc_module
+        sys.modules[unique_pb2] = pb2_module
+        sys.modules[unique_grpc] = grpc_module
 
-        if spec_pb2.loader and spec_grpc.loader:
+        if not spec_pb2.loader or not spec_grpc.loader:
+            raise RuntimeError("Failed to load proto module loaders")
+
+        # The generated ``*_pb2_grpc.py`` does ``import <proto>_pb2``, so expose
+        # the pb2 module under that plain name only while the grpc module loads.
+        sys.modules[f"{proto_name}_pb2"] = pb2_module
+        try:
             spec_pb2.loader.exec_module(pb2_module)
             spec_grpc.loader.exec_module(grpc_module)
-        else:
-            raise RuntimeError("Failed to load proto module loaders")
+        finally:
+            # Drop the temporary alias so we don't shadow unrelated modules.
+            sys.modules.pop(f"{proto_name}_pb2", None)
 
         # Register services
         self._register_services(pb2_module, grpc_module)
@@ -135,7 +155,10 @@ class GrpcClient(ApiClient):
                                     method_name
                                 ]
                             else:
-                                print(f"  Warning: No request class found for {method_name}")
+                                warnings.warn(
+                                    f"No request class found for gRPC method {method_name!r}",
+                                    stacklevel=2,
+                                )
 
                             # Pre-bind method
                             setattr(
@@ -220,9 +243,6 @@ class GrpcClient(ApiClient):
         if self._temp_dir:
             self._temp_dir.cleanup()
             self._temp_dir = None
-
-    def __del__(self):
-        self.close()
 
     def __repr__(self) -> str:
         methods = ", ".join(self._methods.keys()) if self._methods else "No methods loaded"

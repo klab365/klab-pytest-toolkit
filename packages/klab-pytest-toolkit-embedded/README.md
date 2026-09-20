@@ -16,20 +16,32 @@ At the moment the package provides the following components:
   - `ProbeRsProbe`: Generic debug probe implementation using the `probe-rs` CLI.
 - Communicators:
   - `SerialCommunicator`: Serial port communication interface for UART/USB connections.
+  - `TcpCommunicator`: Raw TCP socket communication interface (e.g., LXI instruments).
+  - `VisaCommunicator`: VISA resource communication interface (requires the `visa` extra).
 - Logic Analyzers:
-  - `LogicAnalyzer`: Abstract interface for reusable logic analyzer fixtures.
+  - `LogicAnalyzer`: Abstract interface for reusable logic analyzers.
   - `SaleaeLogicAnalyzer`: Saleae Automation API based implementation with named digital channels.
 - GPIO Controllers:
-  - `GpioController`: Abstract interface for reusable GPIO fixtures.
+  - `GpioController`: Abstract interface for reusable GPIO controllers.
   - `FtdiGpioController`: FTDI/pyftdi based GPIO controller with named pins.
 - SPI Controllers:
-  - `SpiController`: Abstract interface for reusable SPI fixtures.
+  - `SpiController`: Abstract interface for reusable SPI controllers.
   - `FtdiSpiController`: FTDI/pyftdi based SPI controller.
   - `SpidevSpiController`: Linux spidev based SPI controller for Raspberry Pi and other Linux benches.
 - I2C Controllers:
-  - `I2cController`: Abstract interface for reusable I2C fixtures.
+  - `I2cController`: Abstract interface for reusable I2C controllers.
   - `FtdiI2cController`: FTDI/pyftdi based I2C controller.
   - `SmbusI2cController`: Linux SMBus/I2C controller for Raspberry Pi and other Linux benches.
+- Measurements:
+  - `MeasurementInstrument`: Interface for current, voltage, resistance, and temperature
+    measurements returning unit-aware DTOs (`Current`, `Voltage`, `Resistance`, and `Temperature`).
+  - `PowerSupply`: Interface for programmable power supplies.
+  - `ScpiMultimeter`: SCPI-based digital multimeter.
+  - `ScpiPowerSupply`: SCPI-based programmable power supply.
+
+Concrete hardware implementations live in each component's `adapters/` package. They remain
+re-exported from the parent package, so public imports such as
+`from klab_pytest_toolkit_embedded.debug_probes import OpenOcdProbe` stay unchanged.
 
 ## Installation
 
@@ -55,9 +67,112 @@ Install Linux bench bus support with the optional extra:
 pip install 'klab-pytest-toolkit-embedded[linux]'
 ```
 
+Install VISA support with the optional extra (pulls in `pyvisa`):
+
+```bash
+pip install 'klab-pytest-toolkit-embedded[visa]'
+```
+
 At the moment, the `linux` extra is used for Linux SPI and I2C backends (`spidev` and `smbus2`). A Linux GPIO backend is planned separately.
 
 ## Usage
+
+This package is a **library of reusable classes**. Instantiate them directly or
+wrap them in your own `@pytest.fixture`; the package does not auto-register
+fixtures.
+
+### Measurements
+
+Measurement implementations return immutable DTOs with an explicit value and unit. Convert a
+value with `to()` before comparison.
+
+```python
+from klab_pytest_toolkit_embedded.measurements import (
+    CurrentUnit,
+    MeasurementInstrument,
+)
+
+
+def test_sleep_current(meter: MeasurementInstrument) -> None:
+    current = meter.measure_current().to(CurrentUnit.MICROAMPERE)
+    assert current.value < 100
+```
+
+### SCPI Measurement Instruments
+
+`ScpiMultimeter` talks to SCPI instruments such as Keysight, Rigol, or Keithley DMMs over any
+`CommunicatorInterface`. `TcpCommunicator` connects over a raw TCP socket (LXI devices);
+`SerialCommunicator` covers RS-232/UART instruments.
+
+```python
+from klab_pytest_toolkit_embedded.communicators import TcpCommunicator
+from klab_pytest_toolkit_embedded.measurements import CurrentUnit, ScpiMultimeter
+
+
+def test_sleep_current() -> None:
+    communicator = TcpCommunicator(host="10.0.0.5", port=5025)
+    with ScpiMultimeter(communicator) as meter:
+        current = meter.measure_current().to(CurrentUnit.MICROAMPERE)
+        assert current.value < 100
+```
+
+`ScpiMultimeter` returns values in SI base units (volts, amperes, ohms, hertz, and degrees
+Celsius).
+
+Serial example:
+
+```python
+from klab_pytest_toolkit_embedded.communicators import SerialCommunicator
+from klab_pytest_toolkit_embedded.measurements import ScpiMultimeter
+
+
+def test_supply_voltage() -> None:
+    communicator = SerialCommunicator(port="/dev/ttyUSB0", baudrate=9600)
+    with ScpiMultimeter(communicator) as meter:
+        voltage = meter.measure_voltage()
+        assert voltage.value > 3.0
+```
+
+### SCPI Power Supply
+
+`ScpiPowerSupply` controls a programmable power supply over SCPI. The output is disabled
+automatically when leaving the context manager, even if a test fails.
+
+```python
+from klab_pytest_toolkit_embedded.communicators import TcpCommunicator
+from klab_pytest_toolkit_embedded.measurements import (
+    Current,
+    CurrentUnit,
+    ScpiPowerSupply,
+    Voltage,
+    VoltageUnit,
+)
+
+
+def test_powered_dut() -> None:
+    communicator = TcpCommunicator(host="10.0.0.6", port=5025)
+    with ScpiPowerSupply(communicator) as supply:
+        supply.set_voltage(Voltage(3.3, VoltageUnit.VOLT))
+        supply.set_current_limit(Current(500, CurrentUnit.MILLIAMPERE))
+        supply.enable_output()
+
+        actual = supply.measure_voltage()
+        assert actual.value == pytest.approx(3.3)
+```
+
+VISA example (requires the `visa` extra):
+
+```python
+from klab_pytest_toolkit_embedded.communicators import VisaCommunicator
+from klab_pytest_toolkit_embedded.measurements import ScpiMultimeter
+
+
+def test_identify_visa_instrument() -> None:
+    communicator = VisaCommunicator("USB0::0x1234::0x5678::MY59001234::INSTR")
+    with ScpiMultimeter(communicator) as meter:
+        assert meter.identify()
+```
+
 
 ### Board Class
 
@@ -74,7 +189,7 @@ from klab_pytest_toolkit_embedded.debug_probes import EspTool
 from klab_pytest_toolkit_embedded.communicators import SerialCommunicator
 
 @pytest.fixture
-def dut() -> Generator[Board]:
+def dut() -> Generator[Board, None, None]:
     """Fixture to provide a Board instance for Device Under Test (DUT)."""
     PORT = "/dev/ttyUSB0"
     
@@ -188,7 +303,7 @@ You can combine it with a serial communicator in a board fixture:
 
 ```python
 @pytest.fixture
-def dut() -> Generator[Board]:
+def dut() -> Generator[Board, None, None]:
     with Board(
         debug_probe=OpenOcdProbe(
             config_files=("interface/stlink.cfg", "target/stm32f4x.cfg"),
