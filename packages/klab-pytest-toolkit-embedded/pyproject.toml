@@ -23,6 +23,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ble = [
+    "bleak>=0.22",
+]
 saleae = [
     "logic2-automation>=1.0.11",
 ]
