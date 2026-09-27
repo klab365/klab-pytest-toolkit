@@ -14,6 +14,8 @@ At the moment the package provides the following components:
   - `EspTool`: Debug probe implementation for ESP32 devices using `esptool`.
   - `OpenOcdProbe`: Generic debug probe implementation using the `openocd` CLI.
   - `ProbeRsProbe`: Generic debug probe implementation using the `probe-rs` CLI.
+- BLE:
+  - `BleClient`: Asynchronous GATT client for reads, writes, and notifications.
 - Communicators:
   - `SerialCommunicator`: Serial port communication interface for UART/USB connections.
   - `TcpCommunicator`: Raw TCP socket communication interface (e.g., LXI instruments).
@@ -49,6 +51,12 @@ re-exported from the parent package, so public imports such as
 pip install klab-pytest-toolkit-embedded
 ```
 
+Install BLE support with the optional extra (pulls in `bleak`):
+
+```bash
+pip install 'klab-pytest-toolkit-embedded[ble]'
+```
+
 Install Saleae support with the optional extra (pulls in `logic2-automation`):
 
 ```bash
@@ -80,6 +88,22 @@ At the moment, the `linux` extra is used for Linux SPI and I2C backends (`spidev
 This package is a **library of reusable classes**. Instantiate them directly or
 wrap them in your own `@pytest.fixture`; the package does not auto-register
 fixtures.
+
+### BLE
+
+`BleClient` deliberately exposes GATT operations instead of emulating a byte stream. It supports
+characteristic reads, writes, and notifications and requires the `ble` extra. Pass `pair=True`
+to request pairing while connecting; the operating system handles its prompt and bond storage.
+
+```python
+from klab_pytest_toolkit_embedded.ble import BleClient
+
+
+async def test_device_status() -> None:
+    async with BleClient("AA:BB:CC:DD:EE:FF", pair=True) as client:
+        await client.write("command-characteristic-uuid", b"status")
+        assert await client.read("status-characteristic-uuid") == b"ok"
+```
 
 ### Measurements
 
