@@ -23,9 +23,13 @@ At the moment the package provides the following components:
 - Logic Analyzers:
   - `LogicAnalyzer`: Abstract interface for reusable logic analyzers.
   - `SaleaeLogicAnalyzer`: Saleae Automation API based implementation with named digital channels.
+- Tinkerforge:
+  - `TinkerforgeConnection`: Shared `brickd` connection for Tinkerforge hardware adapters.
 - GPIO Controllers:
   - `GpioController`: Abstract interface for reusable GPIO controllers.
   - `FtdiGpioController`: FTDI/pyftdi based GPIO controller with named pins.
+  - `TinkerforgeIO16GpioController`: Tinkerforge IO-16 v2 based GPIO controller with named pins.
+  - `TinkerforgeIndustrialQuadRelayController`: Tinkerforge Industrial Quad Relay controller with named relay channels.
 - SPI Controllers:
   - `SpiController`: Abstract interface for reusable SPI controllers.
   - `FtdiSpiController`: FTDI/pyftdi based SPI controller.
@@ -69,6 +73,12 @@ Install FTDI bench support with the optional extra:
 pip install 'klab-pytest-toolkit-embedded[ftdi]'
 ```
 
+Install Tinkerforge bench support with the optional extra:
+
+```bash
+pip install 'klab-pytest-toolkit-embedded[tinkerforge]'
+```
+
 Install Linux bench bus support with the optional extra:
 
 ```bash
@@ -88,6 +98,16 @@ At the moment, the `linux` extra is used for Linux SPI and I2C backends (`spidev
 This package is a **library of reusable classes**. Instantiate them directly or
 wrap them in your own `@pytest.fixture`; the package does not auto-register
 fixtures.
+
+### Tinkerforge
+
+Tinkerforge adapters require [`brickd`](https://www.tinkerforge.com/en/doc/Software/Brickd.html)
+to be running on the host connected to the Tinkerforge hardware (normally port `4223`). It can
+run on the local bench host or a remote host; it does not need to be a permanent system service.
+Start it for the pytest session and stop it during fixture teardown if preferred.
+
+`TinkerforgeConnection` is the shared connection layer for all current and future Tinkerforge
+Bricklet adapters.
 
 ### BLE
 
