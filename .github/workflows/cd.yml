@@ -1,42 +1,55 @@
-name: CD - Build and Publish
+name: Release Please
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  build-and-publish:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      paths_released: ${{ steps.release.outputs.paths_released }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
+    steps:
+      - name: Create release pull requests or GitHub releases
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.releases_created == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write  # Required for trusted publishing to PyPI
-
+      id-token: write # Required for trusted publishing to PyPI.
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.release-please.outputs.paths_released) }}
     steps:
-      - name: Checkout code
+      - name: Checkout released code
         uses: actions/checkout@v4
+        with:
+          # The release PR is the commit that triggered this workflow, so it
+          # contains the version written by Release Please for this package.
+          ref: ${{ github.sha }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
         env:
-          # cd.yml doesn't run tests or invoke Playwright, so skip the
-          # postinstall hooks (which would try to install Playwright
-          # browsers and apt packages). We still need uv installed so
-          # subsequent ``mise run build`` and ``mise run publish`` work.
+          # Publishing only builds distributions, so Playwright and its OS
+          # dependencies are not needed.
           MISE_NO_HOOKS: "1"
 
-      - name: Extract version from tag
-        id: extract_version
-        run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/v}
-          echo "VERSION=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "Extracted version: $TAG_NAME"
+      - name: Build package
+        run: uv build ${{ matrix.package }}
 
-      - name: Update package versions
-        run: mise run update-version ${{ steps.extract_version.outputs.VERSION }}
-
-      - name: Build packages
-        run: mise run build
-
-      - name: Publish to PyPI
-        run: mise run publish ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish package to PyPI
+        run: uv publish ${{ matrix.package }}/dist/* --token ${{ secrets.PYPI_API_TOKEN }}

@@ -15,7 +15,7 @@ from klab_pytest_toolkit_web.web_client import (
 from klab_pytest_toolkit_web._api_client_types.grpc_client import GrpcClient
 from klab_pytest_toolkit_web._api_client_types.rest_client import RestApiClient
 
-__version__ = "0.0.0"
+__version__ = "1.3.0"
 
 __all__ = [
     "JsonResponseValidator",

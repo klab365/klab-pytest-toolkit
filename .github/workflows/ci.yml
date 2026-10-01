@@ -37,11 +37,8 @@ jobs:
           pytest-xml-coverage-path: ./coverage.xml
           junitxml-path: ./pytest.xml
 
-      - name: Update package versions to 0.0.0 for CI
-        run: mise run update-version 0.0.0
-
       - name: Build packages
         run: mise run build
 
-      - name: Publish to PyPI 0.0.0 version
+      - name: Dry-run PyPI publication
         run: mise run publish ${{ secrets.PYPI_API_TOKEN }} --dry-run
