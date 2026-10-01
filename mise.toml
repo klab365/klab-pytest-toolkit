@@ -132,35 +132,6 @@ exec uv run pytest \
     packages
 """
 
-[tasks.update-version]
-description = "Update version in all packages"
-usage = 'arg "<version>" help="Version to set for all packages"'
-run = """
-#!/usr/bin/env bash
-set -euo pipefail
-version="${usage_version?}"
-echo "Updating all packages to version $version"
-for pkg in packages/*/; do
-    echo "Processing package $pkg"
-    pkg_name=$(basename $pkg)
-    module_name=$(echo $pkg_name | tr '-' '_')
-    init_file="$pkg/src/$module_name/__init__.py"
-
-    if [ ! -f "$init_file" ]; then
-        echo "ERROR: __init__.py not found at $init_file for package $pkg_name"
-        exit 1
-    fi
-
-    if ! grep -q '__version__' "$init_file"; then
-        echo "ERROR: __version__ not found in $init_file for package $pkg_name"
-        exit 1
-    fi
-
-    echo "Updating $pkg_name at $init_file"
-    sed -i 's/__version__ = .*/__version__ = "'"$version"'"/' "$init_file"
-done
-"""
-
 [tasks.build]
 description = "Build all packages"
 run = """

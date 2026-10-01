@@ -57,4 +57,4 @@ The default pytest configuration excludes `packages/klab-pytest-toolkit-embedded
 
 ## Releases
 
-Use `mise run update-version <version>` to update every package version together. Build with `mise run build`; publishing requires `PYPI_TOKEN` and is performed by `mise run publish <token>`. Do not publish or alter versions unless explicitly requested.
+Release Please updates each package version independently. Build with `mise run build`; publishing requires `PYPI_TOKEN` and is performed by `mise run publish <token>`. Do not publish or alter versions unless explicitly requested.

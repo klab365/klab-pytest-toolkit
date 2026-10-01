@@ -1,6 +1,9 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+This is the legacy, consolidated project changelog and is no longer updated.
+New releases are documented in the `CHANGELOG.md` file of each package and are managed by
+Release Please.
+
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
