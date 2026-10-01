@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/klab365/klab-pytest-toolkit/compare/klab-pytest-toolkit-prompt-v1.4.0...klab-pytest-toolkit-prompt-v1.4.1) (2026-10-01)
+
+
+### Bug Fixes
+
+* preserve Python package version modules ([e269db9](https://github.com/klab365/klab-pytest-toolkit/commit/e269db9d3a33014cc05db4c9ea1a8761567751d8))
+
 ## [1.4.0](https://github.com/klab365/klab-pytest-toolkit/compare/klab-pytest-toolkit-prompt-v1.3.0...klab-pytest-toolkit-prompt-v1.4.0) (2026-10-01)
 
 
