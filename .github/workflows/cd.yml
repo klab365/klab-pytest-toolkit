@@ -3,6 +3,12 @@ name: Release Please
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: JSON array of package paths to publish
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,6 +16,7 @@ permissions:
 
 jobs:
   release-please:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     outputs:
       paths_released: ${{ steps.release.outputs.paths_released }}
@@ -49,7 +56,40 @@ jobs:
           MISE_NO_HOOKS: "1"
 
       - name: Build package
-        run: uv build ${{ matrix.package }}
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: uv build --out-dir "$PACKAGE/dist" "$PACKAGE"
 
       - name: Publish package to PyPI
-        run: uv publish ${{ matrix.package }}/dist/* --token ${{ secrets.PYPI_API_TOKEN }}
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: uv publish "$PACKAGE"/dist/* --token ${{ secrets.PYPI_API_TOKEN }}
+
+  publish-existing:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # Required for trusted publishing to PyPI.
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(inputs.packages) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        env:
+          MISE_NO_HOOKS: "1"
+
+      - name: Build package
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: uv build --out-dir "$PACKAGE/dist" "$PACKAGE"
+
+      - name: Publish package to PyPI
+        env:
+          PACKAGE: ${{ matrix.package }}
+        run: uv publish "$PACKAGE"/dist/* --token ${{ secrets.PYPI_API_TOKEN }}
