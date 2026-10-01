@@ -75,7 +75,8 @@ mise run test -- packages/klab-pytest-toolkit-web
 ## Releases
 
 [Release Please](https://github.com/googleapis/release-please) manages each workspace package
-independently. Conventional commits that change a package create a package-specific release PR;
-merging it creates that package's GitHub release and publishes only its distribution to PyPI.
+independently. Conventional commits that change packages create one release PR containing all
+affected packages; merging it creates each package's GitHub release and publishes only its
+distribution to PyPI.
 Release tags use the package name and version, for example
 `klab-pytest-toolkit-web-v1.4.0`.
