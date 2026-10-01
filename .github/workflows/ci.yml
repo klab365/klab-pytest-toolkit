@@ -16,7 +16,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          # Check the PR head rather than GitHub's synthetic merge commit.
+          # The rebase check below must inspect the commits authored on the PR.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Require a rebased pull request branch
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          git fetch origin "$BASE_BRANCH"
+          git merge-base --is-ancestor "origin/$BASE_BRANCH" HEAD || {
+            echo "Rebase this branch onto origin/$BASE_BRANCH before merging."
+            exit 1
+          }
+          if git rev-list --merges "origin/$BASE_BRANCH..HEAD" | grep -q .; then
+            echo "Pull request branches must be rebased; merge commits are not allowed."
+            exit 1
+          fi
 
       - name: Install mise
         uses: jdx/mise-action@v2

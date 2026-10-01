@@ -2,33 +2,29 @@
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "packages": {
     "packages/klab-pytest-toolkit-decorators": {
-      "release-type": "simple",
+      "release-type": "python",
       "package-name": "klab-pytest-toolkit-decorators",
-      "version-file": "src/klab_pytest_toolkit_decorators/__init__.py",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true,
       "include-v-in-tag": true
     },
     "packages/klab-pytest-toolkit-embedded": {
-      "release-type": "simple",
+      "release-type": "python",
       "package-name": "klab-pytest-toolkit-embedded",
-      "version-file": "src/klab_pytest_toolkit_embedded/__init__.py",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true,
       "include-v-in-tag": true
     },
     "packages/klab-pytest-toolkit-prompt": {
-      "release-type": "simple",
+      "release-type": "python",
       "package-name": "klab-pytest-toolkit-prompt",
-      "version-file": "src/klab_pytest_toolkit_prompt/__init__.py",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true,
       "include-v-in-tag": true
     },
     "packages/klab-pytest-toolkit-web": {
-      "release-type": "simple",
+      "release-type": "python",
       "package-name": "klab-pytest-toolkit-web",
-      "version-file": "src/klab_pytest_toolkit_web/__init__.py",
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": true,
       "include-v-in-tag": true
