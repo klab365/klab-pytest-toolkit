@@ -815,6 +815,9 @@ linux = [
 saleae = [
     { name = "logic2-automation" },
 ]
+tinkerforge = [
+    { name = "tinkerforge" },
+]
 visa = [
     { name = "pyvisa" },
 ]
@@ -831,8 +834,9 @@ requires-dist = [
     { name = "pyvisa", marker = "extra == 'visa'", specifier = ">=1.14" },
     { name = "smbus2", marker = "extra == 'linux'", specifier = ">=0.6.1" },
     { name = "spidev", marker = "extra == 'linux'", specifier = ">=3.8" },
+    { name = "tinkerforge", marker = "extra == 'tinkerforge'", specifier = ">=2.1.0" },
 ]
-provides-extras = ["ble", "ftdi", "linux", "saleae", "visa"]
+provides-extras = ["ble", "ftdi", "linux", "saleae", "tinkerforge", "visa"]
 
 [[package]]
 name = "klab-pytest-toolkit-prompt"
@@ -1473,6 +1477,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/fc/b3/c272537f3ea2f3125
 wheels = [
     { url = "https://files.pythonhosted.org/packages/73/27/c2f24b19dafa197c514abe70eda69bc031c5152c6b1f1e5b20099e2ceedd/testcontainers-4.13.3-py3-none-any.whl", hash = "sha256:063278c4805ffa6dd85e56648a9da3036939e6c0ac1001e851c9276b19b05970", size = 124784, upload-time = "2025-11-14T05:08:46.053Z" },
 ]
+
+[[package]]
+name = "tinkerforge"
+version = "2.1.32"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/77/5d/b1ec953d9b3df14687bde793accaed0c30d2086f83d7665bb72b1e738a1b/tinkerforge-2.1.32.tar.gz", hash = "sha256:a0858e0b14181f6daaced6b53f696241a26f4dc1f905c1d9397458eaed72cc19", size = 382843, upload-time = "2025-09-04T08:42:18.897Z" }
 
 [[package]]
 name = "tomli"

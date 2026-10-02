@@ -32,6 +32,9 @@ saleae = [
 ftdi = [
     "pyftdi>=0.56.0",
 ]
+tinkerforge = [
+    "tinkerforge>=2.1.0",
+]
 linux = [
     "gpiod>=2.5.0",
     "smbus2>=0.6.1",
