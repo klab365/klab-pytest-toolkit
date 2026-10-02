@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/klab365/klab-pytest-toolkit/compare/klab-pytest-toolkit-embedded-v1.4.1...klab-pytest-toolkit-embedded-v1.5.0) (2026-10-02)
+
+
+### Features
+
+* **embedded:** add Tinkerforge IO-16 support ([8e96ef2](https://github.com/klab365/klab-pytest-toolkit/commit/8e96ef2fba2eb7802095cb96e1226ee58e24911c))
+* **embedded:** add Tinkerforge relay and IO-16 support ([6519e63](https://github.com/klab365/klab-pytest-toolkit/commit/6519e63b6579105b7d5e57a09ce31b65d1c1d2d2))
+
 ## [1.4.1](https://github.com/klab365/klab-pytest-toolkit/compare/klab-pytest-toolkit-embedded-v1.4.0...klab-pytest-toolkit-embedded-v1.4.1) (2026-10-01)
 
 

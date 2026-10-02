@@ -1,6 +1,6 @@
 {
   "packages/klab-pytest-toolkit-decorators": "1.3.0",
-  "packages/klab-pytest-toolkit-embedded": "1.4.1",
+  "packages/klab-pytest-toolkit-embedded": "1.5.0",
   "packages/klab-pytest-toolkit-prompt": "1.4.1",
   "packages/klab-pytest-toolkit-web": "1.4.1"
 }
